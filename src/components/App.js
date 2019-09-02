@@ -4,15 +4,18 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import { Header, Footer } from './layouts'
 import { Engage, Collect } from './pages'
 
-function App() {
+function App(props) {
 	return (
 		<Router>
-			<Header />
+			<Route
+				render={({ location }) => {
+					return <Header location={location} />
+				}}
+			/>
 			<Switch>
 				<Route exact path="/" component={Engage} />
 				<Route exact path="/collect" component={Collect} />
 			</Switch>
-			<h1>Hi from React</h1>
 			<Footer />
 		</Router>
 	)
