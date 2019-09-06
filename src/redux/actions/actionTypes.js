@@ -1,0 +1,2 @@
+export const COLLECT = 'COLLECT'
+export const CLARIFY_TO_NEXT_ACTION = ' CLARIFY_TO_NEXT_ACTION'

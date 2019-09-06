@@ -31,7 +31,12 @@ export default ({ location }) => {
 
 	return (
 		<Paper className={classes.root}>
-			<Tabs value={selectedTab} textColor="primary">
+			<Tabs
+				value={selectedTab}
+				indicatorColor="primary"
+				textColor="primary"
+				centered
+			>
 				{tabsArray.map(menuItem => (
 					<Tab label={menuItem.label} component={Link} to={menuItem.to} />
 				))}

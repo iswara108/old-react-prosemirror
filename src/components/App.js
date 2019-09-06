@@ -2,7 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
 import { Header, Footer } from './layouts'
-import { Engage, Collect } from './pages'
+import { Engage, Collect, Lists, Clarify } from './pages'
 
 function App(props) {
 	return (
@@ -15,6 +15,8 @@ function App(props) {
 			<Switch>
 				<Route exact path="/" component={Engage} />
 				<Route exact path="/collect" component={Collect} />
+				<Route exact path="/clarify" component={Clarify} />
+				<Route exact path="/lists" component={Lists} />
 			</Switch>
 			<Footer />
 		</Router>
