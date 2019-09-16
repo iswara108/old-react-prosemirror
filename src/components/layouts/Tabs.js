@@ -6,41 +6,46 @@ import Tab from '@material-ui/core/Tab'
 import { Link } from 'react-router-dom'
 
 const useStyles = makeStyles({
-	root: {
-		flexGrow: 1
-	}
+  root: {
+    flexGrow: 1
+  }
 })
 
 const tabsArray = [
-	{ label: 'Collect', to: '/collect' },
-	{ label: 'Clarify', to: '/clarify' },
-	{ label: 'Lists', to: '/lists' },
-	{ label: 'Engage', to: '/' }
+  { label: 'Collect', to: '/collect' },
+  { label: 'Clarify', to: '/clarify' },
+  { label: 'Lists', to: '/lists' },
+  { label: 'Engage', to: '/' }
 ]
 
 export default ({ location }) => {
-	const classes = useStyles()
-	const [selectedTab, setSelectedTab] = React.useState(0)
+  const classes = useStyles()
+  const [selectedTab, setSelectedTab] = React.useState(0)
 
-	React.useEffect(() => {
-		const currentTab = tabsArray.findIndex(
-			menuItem => location.pathname === menuItem.to
-		)
-		if (~currentTab) setSelectedTab(currentTab)
-	}, [location])
+  React.useEffect(() => {
+    const currentTab = tabsArray.findIndex(
+      menuItem => location.pathname === menuItem.to
+    )
+    if (~currentTab) setSelectedTab(currentTab)
+  }, [location])
 
-	return (
-		<Paper className={classes.root}>
-			<Tabs
-				value={selectedTab}
-				indicatorColor="primary"
-				textColor="primary"
-				centered
-			>
-				{tabsArray.map(menuItem => (
-					<Tab label={menuItem.label} component={Link} to={menuItem.to} />
-				))}
-			</Tabs>
-		</Paper>
-	)
+  return (
+    <Paper className={classes.root}>
+      <Tabs
+        value={selectedTab}
+        indicatorColor="primary"
+        textColor="primary"
+        centered
+      >
+        {tabsArray.map(menuItem => (
+          <Tab
+            key={menuItem.label}
+            label={menuItem.label}
+            component={Link}
+            to={menuItem.to}
+          />
+        ))}
+      </Tabs>
+    </Paper>
+  )
 }

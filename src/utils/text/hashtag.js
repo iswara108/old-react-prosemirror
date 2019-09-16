@@ -1,4 +1,4 @@
-import Token from "./token"
+import Token from './token'
 
 /**
  * Hashtag token.
@@ -27,11 +27,11 @@ Hashtag.prototype = Object.create(Token.prototype, {
  *   was found.
  */
 Hashtag.parse = function(start, text) {
-  if (text[start] !== "#") {
+  if (text[start] !== '#') {
     return start
   }
 
-  var value = "#"
+  var value = '#'
   var i = start + 1
 
   for (i; i < text.length; i++) {
@@ -42,7 +42,7 @@ Hashtag.parse = function(start, text) {
     }
   }
 
-  if (value.length > 1) {
+  if (value.length >= 1) {
     return new Hashtag(start, value)
   }
 

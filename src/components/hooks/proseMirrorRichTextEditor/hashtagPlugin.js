@@ -1,7 +1,7 @@
-import { Decoration, DecorationSet } from "prosemirror-view"
-import { Plugin } from "prosemirror-state"
-import Tokenizer from "../../../utils/text/tokenizer"
-import "./hashtag.css"
+import { Decoration, DecorationSet } from 'prosemirror-view'
+import { Plugin } from 'prosemirror-state'
+import Tokenizer from '../../../utils/text/tokenizer'
+import './hashtag.css'
 
 const getTokens = doc => {
   let tokens = { hashtags: [], mentions: [] }
@@ -14,32 +14,51 @@ const getTokens = doc => {
   return tokens
 }
 
-function hashtagDecoration(doc) {
+function decorateHashtags(doc, selection) {
   let decorations = []
   const tokens = getTokens(doc)
+
   tokens.hashtags.forEach(hashtag => {
     const inlineDeco = Decoration.inline(hashtag.start + 1, hashtag.end + 2, {
-      class: "hashtag"
+      class: 'hashtag'
     })
 
     decorations.push(inlineDeco)
   })
+
   return DecorationSet.create(doc, decorations)
+}
+
+const findHashtagUnderCursor = (doc, selection) => {
+  const tokens = getTokens(doc)
+  return tokens.hashtags.find(
+    hashtag =>
+      selection.anchor === selection.head &&
+      hashtag.start + 2 <= selection.anchor &&
+      hashtag.end + 2 >= selection.head
+  )
 }
 
 export default new Plugin({
   state: {
-    init(_, { doc }) {
-      return hashtagDecoration(doc)
+    init(_, instance) {
+      return decorateHashtags(instance.doc, instance.selection)
     },
-    apply(tr, old) {
-      return tr.docChanged ? hashtagDecoration(tr.doc) : old
+
+    apply(tr, oldDecorationSet) {
+      const hashtagUnderCursor = findHashtagUnderCursor(tr.doc, tr.curSelection)
+
+      if (tr.docChanged) {
+        return decorateHashtags(tr.doc, tr.curSelection)
+      } else {
+        return oldDecorationSet
+      }
     }
   },
 
   props: {
-    decorations(state) {
-      return this.getState(state)
+    decorations(editorState) {
+      return this.getState(editorState)
     }
   }
 })
