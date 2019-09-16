@@ -27,7 +27,6 @@ const ClarifyItems = ({ items, clarifyToNextAction }) => {
 	const [description, setDescription] = useState('')
 
 	useEffect(() => {
-		console.log()
 		setTitle(items[activeStep].title)
 		setDescription(items[activeStep].description)
 	}, [items, activeStep])
