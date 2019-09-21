@@ -2,15 +2,21 @@ import React from 'react'
 import { connect } from 'react-redux'
 import SelectHashtags from './SelectHashtags'
 
-const Hashtags = ({ currentlyEditing, validHashtags }) => {
+const Hashtags = ({
+  currentlyEditing,
+  validHashtags,
+  hashtagHighlightedIndex
+}) => {
   return (
     <>
       <SelectHashtags
         inputValue={currentlyEditing}
-        suggestions={validHashtags} shouldBeOpen={true}
+        suggestions={validHashtags}
+        shouldBeOpen={true}
+        highlightedIndex={hashtagHighlightedIndex}
       />
       <ul>
-        {validHashtags.map(validHashtag => (
+        {validHashtags.map((validHashtag, index) => (
           <li key={validHashtag}>{validHashtag}</li>
         ))}
         <li>{currentlyEditing}</li>

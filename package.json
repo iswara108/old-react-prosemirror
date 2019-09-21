@@ -7,7 +7,6 @@
   "dependencies": {
     "@material-ui/core": "4.4.0",
     "@material-ui/icons": "4.2.1",
-    "downshift": "^3.3.1",
     "prosemirror-commands": "^1.0.8",
     "prosemirror-history": "^1.0.4",
     "prosemirror-keymap": "^1.0.1",

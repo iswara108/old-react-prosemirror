@@ -15,7 +15,13 @@ const RichTextEditor = ({ autoFocus, addHashtag }) => {
   const [view, setView] = useState(null)
   const [hashtagUnderCursor, setHashtagUnderCursor] = useState(null)
   const [displayHashtags, setDisplayHashtags] = useState(false)
+  const [hashtagHighlightedIndex, setHashtagHighlightedIndex] = useState(0)
+
   const editorRef = useRef()
+  const setHighlightIndex = newIndex => {
+    setHashtagHighlightedIndex(newIndex)
+    return true
+  }
 
   useEffect(() => {
     setView(
@@ -23,9 +29,17 @@ const RichTextEditor = ({ autoFocus, addHashtag }) => {
         state: EditorState.create({
           schema,
           plugins: [
-            keymap({ 'Mod-z': undo, 'Mod-y': redo }),
-            history(),
-            hashtagPlugin({ setHashtagUnderCursor, addHashtag })
+            keymap({
+              'Mod-z': undo,
+              'Mod-y': redo
+            }),
+            // history(),
+            hashtagPlugin({
+              setHashtagUnderCursor,
+              addHashtag,
+              hashtagHighlightedIndex,
+              setHighlightIndex
+            })
           ]
         })
       })
@@ -44,12 +58,14 @@ const RichTextEditor = ({ autoFocus, addHashtag }) => {
   useEffect(() => {
     setDisplayHashtags(!!hashtagUnderCursor)
   }, [hashtagUnderCursor])
-
   return (
     <>
-      <div ref={editorRef} />
+      <div ref={editorRef}></div>
       {displayHashtags && hashtagUnderCursor && (
-        <Hashtags currentlyEditing={hashtagUnderCursor.value.slice(1)} />
+        <Hashtags
+          currentlyEditing={hashtagUnderCursor.value.slice(1)}
+          hashtagHighlightedIndex={hashtagHighlightedIndex}
+        />
       )}
     </>
   )

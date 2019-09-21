@@ -6,7 +6,6 @@ import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
-import Downshift from 'downshift'
 
 function Suggestion({
   suggestion,
@@ -83,48 +82,34 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default ({ inputValue, suggestions }) => {
+export default ({ inputValue, suggestions, highlightedIndex }) => {
   const classes = useStyles()
+  const selectedItem = undefined
   const [myPreciousValue, setVal] = React.useState('')
+ 
+
   return (
     <>
       <TextField InputProps={{ value: myPreciousValue }} />
       <div className={classes.root}>
-        <Downshift
-          initialHighlightedIndex={0}
-          id="downshift-simple"
-          onChange={selection => {
-            setVal(selection)
-          }}
-        >
-          {({ getItemProps, getMenuProps, highlightedIndex, selectedItem }) => {
-            console.log(
-              'itempros:',
-              getItemProps(),
-              'menuprops:',
-              getMenuProps()
-            )
-            return (
-              <div className={classes.container}>
-                <div {...getMenuProps()}>
-                  <Paper className={classes.paper} square>
-                    {getSuggestions(inputValue, suggestions).map(
-                      (suggestion, index) => (
-                        <Suggestion
-                          suggestion={suggestion}
-                          index={index}
-                          itemProps={getItemProps({ item: suggestion })}
-                          highlightedIndex={highlightedIndex}
-                          selectedItem={selectedItem || ''}
-                        />
-                      )
-                    )}
-                  </Paper>
-                </div>
-              </div>
-            )
-          }}
-        </Downshift>
+        <div className={classes.container}>
+          <div>
+            <Paper className={classes.paper} square>
+              {getSuggestions(inputValue, suggestions).map(
+                (suggestion, index) => (
+                  <Suggestion
+                    suggestion={suggestion}
+                    index={index}
+                    key={suggestion}
+                    itemProps={{}}
+                    highlightedIndex={highlightedIndex}
+                    selectedItem={selectedItem || ''}
+                  />
+                )
+              )}
+            </Paper>
+          </div>
+        </div>
       </div>
     </>
   )
