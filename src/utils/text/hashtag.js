@@ -1,3 +1,4 @@
+import XRegExp from 'xregexp'
 import Token from './token'
 
 /**
@@ -32,10 +33,9 @@ Hashtag.parse = function(start, text) {
   }
 
   var value = '#'
-  var i = start + 1
-
+  var i = start
   for (i; i < text.length; i++) {
-    if (/^[a-z0-9-]+$/i.test(text[i])) {
+    if (new XRegExp('^[#\\pL-]+$').test(text[i])) {
       value += text[i]
     } else {
       break

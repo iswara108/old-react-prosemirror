@@ -5,7 +5,7 @@ import './hashtag.css'
 
 const getTokens = doc => {
   let tokens = { hashtags: [], mentions: [] }
-  // For each node in the document
+
   doc.descendants(node => {
     if (node.isText) {
       tokens = Object.assign(tokens, Tokenizer(node.text))
@@ -31,34 +31,50 @@ function decorateHashtags(doc, selection) {
 
 const findHashtagUnderCursor = (doc, selection) => {
   const tokens = getTokens(doc)
+
+  const lowestSelection = Math.min(selection.anchor, selection.head)
+  const highestSelection = Math.max(selection.anchor, selection.head)
+
   return tokens.hashtags.find(
     hashtag =>
-      selection.anchor === selection.head &&
-      hashtag.start + 2 <= selection.anchor &&
-      hashtag.end + 2 >= selection.head
+      hashtag.start + 1 <= lowestSelection &&
+      hashtag.end + 2 >= highestSelection
   )
 }
 
-export default new Plugin({
-  state: {
-    init(_, instance) {
-      return decorateHashtags(instance.doc, instance.selection)
+const hashtagPlugin = pluginProps => {
+  return new Plugin({
+    state: {
+      init(_, instance) {
+        return {
+          pluginProps,
+          decorations: decorateHashtags(instance.doc, instance.selection)
+        }
+      },
+
+      apply(
+        tr,
+        {
+          pluginProps: { addHashtag, setHashtagUnderCursor },
+          decorations: oldDecorationSet
+        }
+      ) {
+        setHashtagUnderCursor(findHashtagUnderCursor(tr.doc, tr.curSelection))
+
+        const newStateField = { pluginProps }
+        newStateField.decorations = tr.docChanged
+          ? decorateHashtags(tr.doc, tr.curSelection)
+          : oldDecorationSet
+        return newStateField
+      }
     },
 
-    apply(tr, oldDecorationSet) {
-      const hashtagUnderCursor = findHashtagUnderCursor(tr.doc, tr.curSelection)
-
-      if (tr.docChanged) {
-        return decorateHashtags(tr.doc, tr.curSelection)
-      } else {
-        return oldDecorationSet
+    props: {
+      decorations(editorState) {
+        return this.getState(editorState).decorations
       }
     }
-  },
+  })
+}
 
-  props: {
-    decorations(editorState) {
-      return this.getState(editorState)
-    }
-  }
-})
+export default hashtagPlugin

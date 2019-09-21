@@ -1,2 +1,3 @@
 export const COLLECT = 'COLLECT'
 export const CLARIFY_TO_NEXT_ACTION = ' CLARIFY_TO_NEXT_ACTION'
+export const ADD_HASHTAG = 'ADD_HASHTAG'

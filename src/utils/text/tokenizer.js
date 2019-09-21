@@ -1,5 +1,5 @@
-import Hashtag from "./hashtag"
-import Mention from "./mention"
+import Hashtag from './hashtag'
+import Mention from './mention'
 
 /**
  * TokenizerJS
@@ -11,21 +11,21 @@ import Mention from "./mention"
 export default text => {
   var entities = {
     hashtags: [],
-    mentions: [],
+    mentions: []
   }
 
   for (var i = 0; i <= text.length; i++) {
-    if (text[i] === "#") {
+    if (text[i] === '#') {
       var hashtag = Hashtag.parse(i, text)
 
-      if (typeof hashtag !== "number") {
+      if (typeof hashtag !== 'number') {
         i = hashtag.end
         entities.hashtags.push(hashtag)
       }
-    } else if (text[i] === "@") {
+    } else if (text[i] === '@') {
       var mention = Mention.parse(i, text)
 
-      if (typeof mention !== "number") {
+      if (typeof mention !== 'number') {
         i = mention.end
         entities.mentions.push(mention)
       }
