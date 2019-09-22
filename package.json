@@ -21,6 +21,7 @@
     "react-router-dom": "5.0.1",
     "react-scripts": "3.0.1",
     "redux": "4.0.4",
+    "use-debounce": "^3.0.1",
     "uuid": "3.3.3",
     "xregexp": "^4.2.4"
   },

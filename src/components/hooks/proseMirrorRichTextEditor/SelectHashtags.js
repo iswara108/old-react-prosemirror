@@ -1,22 +1,27 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 import deburr from 'lodash/deburr'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
+import { useDebouncedCallback } from 'use-debounce'
 
 function Suggestion({
   suggestion,
   index,
   itemProps,
   highlightedIndex,
-  selectedItem
+  selectedItem,
+  setHighlightIndex,
+  setAsSelected
 }) {
   const isHighlighted = highlightedIndex === index
   const isSelected = (selectedItem || '').indexOf(suggestion) > -1
 
+  const [setToMyIndex] = useDebouncedCallback(() => setHighlightIndex(index), 5)
   return (
     <MenuItem
       {...itemProps}
@@ -26,6 +31,10 @@ function Suggestion({
       style={{
         fontWeight: isSelected ? 500 : 400
       }}
+      onMouseMove={() => {
+        if (!isHighlighted) setToMyIndex()
+      }}
+      onClick={() => setAsSelected(index)}
     >
       {suggestion}
     </MenuItem>
@@ -47,7 +56,7 @@ function getSuggestions(value, suggestions = [], { showEmpty = false } = {}) {
   const inputValue = deburr(value.trim()).toLowerCase()
   const inputLength = inputValue.length
   let count = 0
-  console.log('getting suggestions out of,', suggestions, 'for  ', inputValue)
+
   return inputLength === 0 && !showEmpty
     ? []
     : suggestions.filter(suggestion => {
@@ -82,11 +91,16 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default ({ inputValue, suggestions, highlightedIndex }) => {
+export default ({
+  inputValue,
+  suggestions,
+  highlightedIndex,
+  setHighlightIndex,
+  setAsSelected
+}) => {
   const classes = useStyles()
   const selectedItem = undefined
   const [myPreciousValue, setVal] = React.useState('')
- 
 
   return (
     <>
@@ -104,6 +118,8 @@ export default ({ inputValue, suggestions, highlightedIndex }) => {
                     itemProps={{}}
                     highlightedIndex={highlightedIndex}
                     selectedItem={selectedItem || ''}
+                    setHighlightIndex={setHighlightIndex}
+                    setAsSelected={setAsSelected}
                   />
                 )
               )}

@@ -10,17 +10,49 @@ import { addHashtag } from '../../../redux/actions'
 import Hashtags from './Hashtags'
 import 'prosemirror-view/style/prosemirror.css'
 import './richTextEditor.css'
+import Button from '@material-ui/core/Button'
 
 const RichTextEditor = ({ autoFocus, addHashtag }) => {
+  const MOVE_TO_NEXT_HASHTAG = 'MOVE_TO_NEXT_HASHTAG'
+  const MOVE_TO_PREV_HASHTAG = 'MOVE_TO_PREV_HASHTAG'
+  const RESET_HASHTAG_HIGHLIGHT = 'RESET_HASHTAG_HIGHLIGHT'
+  const SET_HIGHLIGHT_INDEX = 'SET_HIGHLIGHT_INDEX'
+  const SET_SELECTED = 'SET_SELECTED'
+
   const [view, setView] = useState(null)
   const [hashtagUnderCursor, setHashtagUnderCursor] = useState(null)
   const [displayHashtags, setDisplayHashtags] = useState(false)
-  const [hashtagHighlightedIndex, setHashtagHighlightedIndex] = useState(0)
+  const hashtagOptionsInit = {
+    highlightIndex: 0
+  }
+  const [hashtagOptions, dispatchHashtagChange] = React.useReducer(
+    hashtagOptionsReducer,
+    hashtagOptionsInit
+  )
 
+  function hashtagOptionsReducer(state, action) {
+    switch (action.type) {
+      case MOVE_TO_NEXT_HASHTAG:
+        return { highlightIndex: state.highlightIndex + 1 }
+      case MOVE_TO_PREV_HASHTAG:
+        return { highlightIndex: state.highlightIndex - 1 }
+      case RESET_HASHTAG_HIGHLIGHT:
+        return { highlightIndex: 0 }
+      case SET_HIGHLIGHT_INDEX:
+        return { highlightIndex: action.payload.index }
+      case SET_SELECTED:
+        return { ...state, selected: action.payload.index }
+      default:
+        return state
+    }
+  }
   const editorRef = useRef()
-  const setHighlightIndex = newIndex => {
-    setHashtagHighlightedIndex(newIndex)
-    return true
+  const setHighlightIndex = (newIndex, add) => {
+    if (add === 1) {
+      dispatchHashtagChange({ type: MOVE_TO_NEXT_HASHTAG })
+    } else if (add === -1) {
+      dispatchHashtagChange({ type: MOVE_TO_PREV_HASHTAG })
+    }
   }
 
   useEffect(() => {
@@ -33,11 +65,9 @@ const RichTextEditor = ({ autoFocus, addHashtag }) => {
               'Mod-z': undo,
               'Mod-y': redo
             }),
-            // history(),
             hashtagPlugin({
               setHashtagUnderCursor,
               addHashtag,
-              hashtagHighlightedIndex,
               setHighlightIndex
             })
           ]
@@ -57,14 +87,27 @@ const RichTextEditor = ({ autoFocus, addHashtag }) => {
 
   useEffect(() => {
     setDisplayHashtags(!!hashtagUnderCursor)
+    if (!hashtagUnderCursor) {
+      dispatchHashtagChange({ type: RESET_HASHTAG_HIGHLIGHT })
+    }
   }, [hashtagUnderCursor])
+
   return (
     <>
       <div ref={editorRef}></div>
-      {displayHashtags && hashtagUnderCursor && (
+      {displayHashtags && hashtagUnderCursor && hashtagOptions && (
         <Hashtags
-          currentlyEditing={hashtagUnderCursor.value.slice(1)}
-          hashtagHighlightedIndex={hashtagHighlightedIndex}
+          inputValue={hashtagUnderCursor.value.slice(1)}
+          highlightedIndex={hashtagOptions.highlightIndex || 0}
+          setHighlightIndex={index =>
+            dispatchHashtagChange({
+              type: SET_HIGHLIGHT_INDEX,
+              payload: { index }
+            })
+          }
+          setAsSelected={index =>
+            dispatchHashtagChange({ type: SET_SELECTED, payload: { index } })
+          }
         />
       )}
     </>

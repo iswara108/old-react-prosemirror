@@ -38,14 +38,13 @@ const findHashtagUnderCursor = (doc, selection) => {
   return tokens.hashtags.find(
     hashtag =>
       hashtag.start + 1 <= lowestSelection &&
-      hashtag.end + 2 >= highestSelection
+      hashtag.end + 1 >= highestSelection
   )
 }
 
 const hashtagPlugin = ({
   addHashtag = () => 'not implemented',
   setHashtagUnderCursor = () => 'not implemented',
-  hashtagHighlightIndex = 0,
   setHighlightIndex = () => 'not implemented'
 }) => {
   return new Plugin({
@@ -55,7 +54,6 @@ const hashtagPlugin = ({
           pluginProps: {
             addHashtag,
             setHashtagUnderCursor,
-            hashtagHighlightIndex,
             setHighlightIndex
           },
           decorations: decorateHashtags(instance.doc, instance.selection)
@@ -66,7 +64,6 @@ const hashtagPlugin = ({
         const {
           addHashtag,
           setHashtagUnderCursor,
-          hashtagHighlightIndex,
           setHighlightIndex
         } = pluginProps
 
@@ -74,21 +71,15 @@ const hashtagPlugin = ({
           tr.doc,
           tr.curSelection
         )
-        console.log('hashtag ', hashtagUnderCursor)
         setHashtagUnderCursor(hashtagUnderCursor)
 
         const newStateField = { pluginProps }
-        let newIndex = hashtagHighlightIndex
 
         if (tr.getMeta('key') === 'up') {
-          --newIndex
+          setHighlightIndex(null, -1)
         } else if (tr.getMeta('key') === 'down') {
-          ++newIndex
-        } else if (hashtagUnderCursor === undefined) {
-          newIndex = 0
+          setHighlightIndex(null, 1)
         }
-        setHighlightIndex(newIndex)
-        newStateField.pluginProps.hashtagHighlightIndex = newIndex
         newStateField.decorations = tr.docChanged
           ? decorateHashtags(tr.doc, tr.curSelection)
           : oldDecorationSet
