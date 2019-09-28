@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
-import { Schema, Node } from 'prosemirror-model'
+import { Schema } from 'prosemirror-model'
 import { keymap } from 'prosemirror-keymap'
 import { undo, redo, history } from 'prosemirror-history'
 import deburr from 'lodash/deburr'
@@ -11,6 +11,17 @@ import { addHashtag } from '../../../redux/actions'
 import SelectHashtags from './SelectHashtags'
 import 'prosemirror-view/style/prosemirror.css'
 import './richTextEditor.css'
+
+class HashtagView {
+  constructor(node) {
+    this.dom = document.createElement('hashtag')
+    this.dom.textContent = node.textContent
+    window['dom-' + node.textContent] = this.dom
+  }
+  selectNode() {
+    this.dom.classList.add('ProseMirror-selectednode')
+  }
+}
 
 const hashtagSchema = new Schema({
   nodes: {
@@ -42,12 +53,9 @@ const RichTextEditor = ({ autoFocus, addHashtag, validHashtags }) => {
 
   const [view, setView] = useState(null)
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState(null)
-  const hashtagOptionsInit = {
-    highlightIndex: 0
-  }
   const [hashtagOptions, dispatchHashtagChange] = React.useReducer(
     hashtagOptionsReducer,
-    hashtagOptionsInit
+    { highlightIndex: 0 }
   )
 
   function hashtagOptionsReducer(state, action) {
@@ -70,34 +78,46 @@ const RichTextEditor = ({ autoFocus, addHashtag, validHashtags }) => {
   }
 
   const setAsSelected = index => {
+    console.log(index)
     dispatchHashtagChange({ type: CLOSE_HASHTAG_OPTIONS })
     if (index === undefined) {
       index = hashtagOptions.highlightIndex
     }
+
     const tr = view.state.tr
-    const newLocal = getSuggestions(
-      hashtagUnderConstruction.value.slice(1),
-      validHashtags
-    )[index]
+    let selectedHashtag
+    if (index === -1) {
+      debugger
+      addHashtag(hashtagUnderConstruction.value.slice(1))
+      selectedHashtag = hashtagUnderConstruction.value.slice(1)
+    } else {
+      selectedHashtag = getSuggestions(
+        hashtagUnderConstruction.value.slice(1),
+        validHashtags
+      )[index]
+    }
+
+    const newHashtagNode = hashtagSchema.nodeFromJSON({
+      type: 'hashtag',
+      content: [
+        {
+          type: 'text',
+          text: selectedHashtag
+        }
+      ]
+    })
 
     view.dispatch(
       tr.replaceRangeWith(
         hashtagUnderConstruction.start + 1,
         hashtagUnderConstruction.end + 1,
-        Node.fromJSON(hashtagSchema, {
-          type: 'hashtag',
-          content: [
-            {
-              type: 'text',
-              text: newLocal
-            }
-          ]
-        })
+        newHashtagNode
       )
     )
     view.focus()
   }
-  const moveHighlightIndex = (newIndex, add) => {
+
+  const moveHighlightIndex = add => {
     if (add === 1) {
       dispatchHashtagChange({ type: MOVE_TO_NEXT_HASHTAG })
     } else if (add === -1) {
@@ -117,18 +137,7 @@ const RichTextEditor = ({ autoFocus, addHashtag, validHashtags }) => {
     if (plugin) {
       plugin.current.setHighlightedAsSelected = setAsSelected
     }
-  }, [plugin, setAsSelected, hashtagSchema])
-
-  class HashtagView {
-    constructor(node) {
-      this.dom = document.createElement('hashtag')
-      this.dom.textContent = node.textContent
-      window['dom-' + node.textContent] = this.dom
-    }
-    selectNode() {
-      this.dom.classList.add('ProseMirror-selectednode')
-    }
-  }
+  }, [plugin, setAsSelected])
 
   useEffect(() => {
     setView(
@@ -179,20 +188,12 @@ const RichTextEditor = ({ autoFocus, addHashtag, validHashtags }) => {
   ) {
     const inputValue = deburr(value.trim()).toLowerCase()
     const inputLength = inputValue.length
-    let count = 0
     return inputLength === 0 && !showEmpty
       ? []
-      : validHashtags.filter(suggestion => {
-          const keep =
-            count < 5 &&
+      : validHashtags.filter(
+          suggestion =>
             suggestion.slice(0, inputLength).toLowerCase() === inputValue
-
-          if (keep) {
-            count += 1
-          }
-
-          return keep
-        })
+        )
   }
 
   return (
@@ -222,7 +223,7 @@ const RichTextEditor = ({ autoFocus, addHashtag, validHashtags }) => {
 const mapStateToProps = state => ({ validHashtags: state.validHashtags })
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  return { addHashtag }
+  return { addHashtag: hashtag => dispatch(addHashtag(hashtag)) }
 }
 
 export default connect(

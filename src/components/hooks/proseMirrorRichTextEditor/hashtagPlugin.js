@@ -23,7 +23,6 @@ const getTokens = doc => {
 function decorateHashtags(doc, selection) {
   let decorations = []
   const tokens = getTokens(doc)
-  console.log(tokens)
   tokens.hashtags.forEach(hashtag => {
     const inlineDeco = Decoration.inline(hashtag.start + 1, hashtag.end + 1, {
       class: 'hashtag-under-construction'
@@ -74,9 +73,9 @@ const hashtagPlugin = pluginProps => {
         const newStateField = { pluginProps }
 
         if (tr.getMeta('key') === 'up') {
-          moveHighlightIndex(null, -1)
+          moveHighlightIndex(-1)
         } else if (tr.getMeta('key') === 'down') {
-          moveHighlightIndex(null, 1)
+          moveHighlightIndex(1)
         }
         newStateField.decorations = tr.docChanged
           ? decorateHashtags(tr.doc, tr.curSelection)
@@ -102,12 +101,6 @@ const hashtagPlugin = pluginProps => {
               this.setHighlightedAsSelected()
             }
             return true
-          case 'Escape':
-            debugger
-            this.closeList()
-            return true
-          default:
-            console.log('key', event.key)
         }
       }
     }

@@ -1,6 +1,5 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import Suggestion from './Sugestion'
 
@@ -23,6 +22,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default ({
+  inputValue,
   suggestions,
   highlightedIndex,
   setHighlightIndex,
@@ -30,15 +30,25 @@ export default ({
 }) => {
   const classes = useStyles()
   const selectedItem = undefined
-  const [myPreciousValue, setVal] = React.useState('')
 
   return (
     <>
-      <TextField InputProps={{ value: myPreciousValue }} />
       <div className={classes.root}>
         <div className={classes.container}>
           <div>
             <Paper className={classes.paper} square>
+              {!suggestions.some(suggestion => suggestion === inputValue) && (
+                <Suggestion
+                  suggestion={`${inputValue} (create new)`}
+                  index={-1}
+                  key={inputValue}
+                  itemProps={{}}
+                  highlightedIndex={highlightedIndex}
+                  selectedItem={selectedItem || ''}
+                  setHighlightIndex={setHighlightIndex}
+                  setAsSelected={setAsSelected}
+                />
+              )}
               {suggestions.map((suggestion, index) => (
                 <Suggestion
                   suggestion={suggestion}

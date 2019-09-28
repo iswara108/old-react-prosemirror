@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { useDebouncedCallback } from 'use-debounce'
 import React from 'react'
 import MenuItem from '@material-ui/core/MenuItem'
