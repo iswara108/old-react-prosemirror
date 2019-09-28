@@ -5,10 +5,16 @@ import './hashtag.css'
 
 const getTokens = doc => {
   let tokens = { hashtags: [], mentions: [] }
-
-  doc.descendants(node => {
-    if (node.isText) {
-      tokens = Object.assign(tokens, Tokenizer(node.text))
+  doc.descendants((node, pos, parent) => {
+    if (parent.type.name === 'hashtag') return false
+    if (node.isText && node.type.name !== 'hashtag') {
+      const token = Tokenizer(node.text)
+      token.hashtags = token.hashtags.map(hashtag => ({
+        start: hashtag.start + pos - 1,
+        end: hashtag.end + pos - 1,
+        value: hashtag.value
+      }))
+      tokens = Object.assign(tokens, token)
     }
   })
   return tokens
@@ -17,10 +23,10 @@ const getTokens = doc => {
 function decorateHashtags(doc, selection) {
   let decorations = []
   const tokens = getTokens(doc)
-
+  console.log(tokens)
   tokens.hashtags.forEach(hashtag => {
     const inlineDeco = Decoration.inline(hashtag.start + 1, hashtag.end + 1, {
-      class: 'hashtag'
+      class: 'hashtag-under-construction'
     })
 
     decorations.push(inlineDeco)
@@ -42,20 +48,12 @@ const findHashtagUnderCursor = (doc, selection) => {
   )
 }
 
-const hashtagPlugin = ({
-  addHashtag = () => 'not implemented',
-  setHashtagUnderCursor = () => 'not implemented',
-  setHighlightIndex = () => 'not implemented'
-}) => {
+const hashtagPlugin = pluginProps => {
   return new Plugin({
     state: {
       init(_, instance) {
         return {
-          pluginProps: {
-            addHashtag,
-            setHashtagUnderCursor,
-            setHighlightIndex
-          },
+          pluginProps,
           decorations: decorateHashtags(instance.doc, instance.selection)
         }
       },
@@ -63,22 +61,22 @@ const hashtagPlugin = ({
       apply(tr, { pluginProps, decorations: oldDecorationSet }) {
         const {
           addHashtag,
-          setHashtagUnderCursor,
-          setHighlightIndex
+          setHashtagUnderConstruction,
+          moveHighlightIndex
         } = pluginProps
 
         const hashtagUnderCursor = findHashtagUnderCursor(
           tr.doc,
           tr.curSelection
         )
-        setHashtagUnderCursor(hashtagUnderCursor)
+        setHashtagUnderConstruction(hashtagUnderCursor)
 
         const newStateField = { pluginProps }
 
         if (tr.getMeta('key') === 'up') {
-          setHighlightIndex(null, -1)
+          moveHighlightIndex(null, -1)
         } else if (tr.getMeta('key') === 'down') {
-          setHighlightIndex(null, 1)
+          moveHighlightIndex(null, 1)
         }
         newStateField.decorations = tr.docChanged
           ? decorateHashtags(tr.doc, tr.curSelection)
@@ -92,12 +90,24 @@ const hashtagPlugin = ({
         return this.getState(editorState).decorations
       },
       handleKeyDown(view, event) {
-        if (event.key === 'ArrowUp') {
-          view.dispatch(view.state.tr.setMeta('key', 'up'))
-          return true
-        } else if (event.key === 'ArrowDown') {
-          view.dispatch(view.state.tr.setMeta('key', 'down'))
-          return true
+        switch (event.key) {
+          case 'ArrowUp':
+            view.dispatch(view.state.tr.setMeta('key', 'up'))
+            return true
+          case 'ArrowDown':
+            view.dispatch(view.state.tr.setMeta('key', 'down'))
+            return true
+          case 'Enter':
+            if (this.getState(view.state).pluginProps) {
+              this.setHighlightedAsSelected()
+            }
+            return true
+          case 'Escape':
+            debugger
+            this.closeList()
+            return true
+          default:
+            console.log('key', event.key)
         }
       }
     }

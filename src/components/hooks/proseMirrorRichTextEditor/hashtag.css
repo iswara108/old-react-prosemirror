@@ -1,8 +1,14 @@
-.hashtag {
+.hashtag-under-construction {
   background: #fdd;
   border-bottom: 1px solid #f22;
   margin-bottom: -1px;
 }
+
+hashtag {
+  background: rgb(214, 170, 170);
+  /* margin-bottom: -1px; */
+}
+
 .ProseMirror {
   padding-right: 20px;
 }

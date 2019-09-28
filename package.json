@@ -1,7 +1,6 @@
 {
   "name": "new",
   "version": "1.0.0",
-  "description": "",
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
@@ -39,5 +38,16 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iswara108/task-manager-gtd.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iswara108/task-manager-gtd/issues"
+  },
+  "homepage": "https://github.com/iswara108/task-manager-gtd#readme",
+  "description": ""
 }
