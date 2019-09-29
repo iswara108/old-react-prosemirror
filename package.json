@@ -7,6 +7,7 @@
     "@material-ui/core": "4.4.0",
     "@material-ui/icons": "4.2.1",
     "prosemirror-commands": "^1.0.8",
+    "prosemirror-example-setup": "^1.0.1",
     "prosemirror-history": "^1.0.4",
     "prosemirror-keymap": "^1.0.1",
     "prosemirror-mentions": "^1.0.0",
