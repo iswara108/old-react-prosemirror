@@ -42,7 +42,7 @@ const Collect = props => {
       <h1>Collect Page</h1>
       <form className={classes.container}>
         <Paper>
-          <ProseHashtagView />
+          <ProseHashtagView validHashtags={props.validHashtags} />
           {/* <RichTextEditor
             id="rte-title"
             label="Title"
@@ -84,6 +84,8 @@ const Collect = props => {
 }
 
 export default connect(
-  undefined,
+  state => ({
+    validHashtags: state.validHashtags
+  }),
   { collect }
 )(Collect)

@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { EditorState, Plugin } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { EditorView } from 'prosemirror-view'
+import { schema as schemaBasic } from 'prosemirror-schema-basic'
 
-function useProseState(schema) {
+function useProseState(schema = schemaBasic, additionalPlugins = []) {
   const [editorState, setEditorState] = useState()
 
   useEffect(() => {
@@ -16,10 +17,14 @@ function useProseState(schema) {
     setEditorState(
       EditorState.create({
         doc: schema.node('doc', null, schema.node('paragraph', null)),
-        plugins: [...exampleSetup({ schema, menuBar: false }), syncStatePlugin]
+        plugins: [
+          ...exampleSetup({ schema, menuBar: false }),
+          syncStatePlugin,
+          ...additionalPlugins
+        ]
       })
     )
-  }, [schema])
+  }, [schema, additionalPlugins])
 
   return editorState
 }
