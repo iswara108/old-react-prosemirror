@@ -1,7 +1,11 @@
 import React from 'react'
 import { useProseView } from './proseMirrorHooks'
 
-export default ({ editorState }) => {
-  const dom = useProseView(editorState)
-  return <div ref={dom} />
+export default props => {
+  const dom = useProseView(props.editorState)
+
+  const propsToDiv = { ...props }
+  delete propsToDiv.editorState
+
+  return <div ref={dom} {...propsToDiv} />
 }

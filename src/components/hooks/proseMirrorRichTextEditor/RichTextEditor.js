@@ -106,14 +106,13 @@ const RichTextEditor = ({ autoFocus, addHashtag, validHashtags }) => {
         }
       ]
     })
-
-    view.dispatch(
-      tr.replaceRangeWith(
-        hashtagUnderConstruction.start + 1,
-        hashtagUnderConstruction.end + 1,
-        newHashtagNode
-      )
+    const trans = tr.replaceRangeWith(
+      hashtagUnderConstruction.start + 1,
+      hashtagUnderConstruction.end + 1,
+      newHashtagNode
     )
+
+    view.dispatch(trans)
     view.focus()
   }
 

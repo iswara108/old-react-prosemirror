@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
 export default ({
   inputValue,
   suggestions,
-  highlightedIndex,
+  highlightIndex,
   setHighlightIndex,
   setAsSelected
 }) => {
@@ -32,39 +32,37 @@ export default ({
   const selectedItem = undefined
 
   return (
-    <>
-      <div className={classes.root}>
-        <div className={classes.container}>
-          <div>
-            <Paper className={classes.paper} square>
-              {!suggestions.some(suggestion => suggestion === inputValue) && (
-                <Suggestion
-                  suggestion={`${inputValue} (create new)`}
-                  index={-1}
-                  key={inputValue}
-                  itemProps={{}}
-                  highlightedIndex={highlightedIndex}
-                  selectedItem={selectedItem || ''}
-                  setHighlightIndex={setHighlightIndex}
-                  setAsSelected={setAsSelected}
-                />
-              )}
-              {suggestions.map((suggestion, index) => (
-                <Suggestion
-                  suggestion={suggestion}
-                  index={index}
-                  key={suggestion}
-                  itemProps={{}}
-                  highlightedIndex={highlightedIndex}
-                  selectedItem={selectedItem || ''}
-                  setHighlightIndex={setHighlightIndex}
-                  setAsSelected={setAsSelected}
-                />
-              ))}
-            </Paper>
-          </div>
+    <div className={classes.root}>
+      <div className={classes.container}>
+        <div>
+          <Paper className={classes.paper} square>
+            {!suggestions.some(suggestion => suggestion === inputValue) && (
+              <Suggestion
+                suggestion={`${inputValue} (create new)`}
+                index={-1}
+                key={inputValue}
+                itemProps={{}}
+                highlightIndex={highlightIndex}
+                selectedItem={selectedItem || ''}
+                setHighlightIndex={setHighlightIndex}
+                setAsSelected={setAsSelected}
+              />
+            )}
+            {suggestions.map((suggestion, index) => (
+              <Suggestion
+                suggestion={suggestion}
+                index={index}
+                key={suggestion}
+                itemProps={{}}
+                highlightIndex={highlightIndex}
+                selectedItem={selectedItem || ''}
+                setHighlightIndex={setHighlightIndex}
+                setAsSelected={setAsSelected}
+              />
+            ))}
+          </Paper>
         </div>
       </div>
-    </>
+    </div>
   )
 }

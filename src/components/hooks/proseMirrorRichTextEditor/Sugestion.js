@@ -8,12 +8,12 @@ function Suggestion({
   suggestion,
   index,
   itemProps,
-  highlightedIndex,
+  highlightIndex,
   selectedItem,
   setHighlightIndex,
   setAsSelected
 }) {
-  const isHighlighted = highlightedIndex === index
+  const isHighlighted = highlightIndex === index
   const isSelected = (selectedItem || '').indexOf(suggestion) > -1
 
   const [setToMyIndex] = useDebouncedCallback(() => setHighlightIndex(index), 5)
@@ -37,7 +37,7 @@ function Suggestion({
 }
 
 Suggestion.propTypes = {
-  highlightedIndex: PropTypes.oneOfType([
+  highlightIndex: PropTypes.oneOfType([
     PropTypes.oneOf([null]),
     PropTypes.number
   ]).isRequired,

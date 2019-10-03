@@ -42,7 +42,10 @@ const Collect = props => {
       <h1>Collect Page</h1>
       <form className={classes.container}>
         <Paper>
-          <ProseHashtagView validHashtags={props.validHashtags} />
+          <ProseHashtagView
+            validHashtags={props.validHashtags}
+            multiline={false}
+          />
           {/* <RichTextEditor
             id="rte-title"
             label="Title"

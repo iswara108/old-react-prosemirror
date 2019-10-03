@@ -24,13 +24,14 @@ function useProseState(schema = schemaBasic, additionalPlugins = []) {
         ]
       })
     )
-  }, [schema, additionalPlugins])
+  }, [])
 
   return editorState
 }
 
 function useProseView(editorState) {
   const dom = useRef(document.createElement('div'))
+  dom.current.style.backgroundColor = 'lightYellow'
   const [view, setView] = useState(null)
 
   useEffect(() => {
@@ -42,6 +43,14 @@ function useProseView(editorState) {
       )
     }
   }, [editorState, view])
+
+  useEffect(() => {
+    if (view && editorState) {
+      if (view.state !== editorState) {
+        view.updateState(editorState)
+      }
+    }
+  }, [editorState])
 
   return dom
 }
