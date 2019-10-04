@@ -72,6 +72,7 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
     {}
   )
 
+  // Whenever the document changed due to user input
   useEffect(() => {
     if (rawEditorState) {
       if (editorState) {
@@ -88,6 +89,7 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
     }
   }, [rawEditorState])
 
+  // Whenever the hashtag under construction changed its state
   useEffect(() => {
     if (hashtagUnderConstruction) {
       dispatchSuggestionsChange({ type: OPEN_HASHTAG_OPTIONS })
@@ -96,6 +98,7 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
     }
   }, [hashtagUnderConstruction])
 
+  // Insert the selected hashtag into the WYSIWYG editor
   const insertHashtag = index => {
     if (isNaN(index)) index = suggestionsState.highlightIndex
     const newHashtag =
@@ -119,6 +122,7 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
     )
     setEditorState(interimState.apply(tr))
 
+    // Add new selection into the global list of hashtags
     if (index === -1) addHashtag(newHashtag)
   }
 
