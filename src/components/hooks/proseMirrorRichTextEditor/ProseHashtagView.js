@@ -3,11 +3,11 @@ import React, { useReducer, useState, useEffect } from 'react'
 import deburr from 'lodash/deburr'
 import { connect } from 'react-redux'
 import { Schema } from 'prosemirror-model'
+import { EditorState } from 'prosemirror-state'
 import { addHashtag } from '../../../redux/actions'
 import { useProseState } from './proseMirrorHooks'
 import ProseView from './ProseView'
 import hashtagPlugin from './hashtagPlugin'
-
 import { findHashtagUnderCursor } from './hashtagUtils'
 import SelectHashtags from './SelectHashtags'
 
@@ -108,21 +108,76 @@ function useHashtagProseState(schema, validHashtags) {
   }, [hashtagUnderConstruction])
 
   const insertHashtag = () => {
-    const newHashtagNode = schema.node(
-      'hashtag',
-      null,
-      schema.text('test text')
-    )
-    console.log('new node:', newHashtagNode)
-    const tr = editorState.tr
-    // tr.insertText(' test ', 2, 4)
-    tr.replaceRangeWith(1, 3, newHashtagNode)
-    debugger
-    const aaa = editorState.apply(tr)
+    // const newHashtagNode = schema.node(
+    //   'hashtag',
+    //   null,
+    //   schema.text('test text')
+    // )
+    // const secondState = EditorState.create({
+    //   doc: editorState.doc,
+    //   selection: editorState.selection
+    //   // plugins: editorState.plugins,
+    //   // storedMarks: editorState.storedMarks
+    // })
 
-    setEditorState(editorState.apply(tr))
+    // debugger
+    // secondState.tr.replaceRangeWith(1, 3, newHashtagNode)
+    // debugger
+    // console.log('new node:', newHashtagNode)
+    // const tr = editorState.tr
+    // // tr.insertText(' test ', 2, 4)
+    // tr.replaceRangeWith(1, 3, newHashtagNode)
+    // debugger
+    // const aaa = editorState.apply(tr)
+
+    // setEditorState(editorState.apply(tr))
+    const parsed = {
+      doc: {
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'OmOm and ' },
+              {
+                type: 'hashtag',
+                content: [{ type: 'text', text: 'computer' }]
+              },
+              { type: 'text', text: ' Ys;ldfkgjsd;flkgsjdf;lgk jsdfg dfes' }
+            ]
+          }
+        ]
+      },
+      selection: { type: 'text', anchor: 1, head: 1 }
+    }
+
+    setEditorState(
+      EditorState.fromJSON({ schema, plugins: editorState.plugins }, parsed)
+    )
   }
 
+  useEffect(() => {
+    if (editorState && editorState.doc.toString().match(/hashtag/)) {
+      // editorState.tr.insert
+
+      const newHashtagNode = schema.node(
+        'hashtag',
+        null,
+        schema.text('test text')
+      )
+      const secondState = EditorState.create({
+        doc: editorState.doc,
+        selection: editorState.selection
+        // plugins: editorState.plugins,
+        // storedMarks: editorState.storedMarks
+      })
+
+      const tr = secondState.tr
+      // tr.insertText(' test ', 2, 4)
+      tr.replaceRangeWith(21, 23, newHashtagNode)
+      debugger
+    }
+  }, [editorState])
   return [
     editorState,
     suggestionsState,
