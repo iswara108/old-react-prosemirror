@@ -5,8 +5,8 @@ import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
 import { connect } from 'react-redux'
 import { collect } from '../../redux/actions'
-// import RichTextEditor from "../hooks/proseMirrorRichTextEditor/RichTextEditor"
 import ProseHashtagView from '../hooks/proseMirrorRichTextEditor/ProseHashtagView'
+import './richTextEditor.css'
 
 const useStyles = makeStyles(theme => ({
   container: {
