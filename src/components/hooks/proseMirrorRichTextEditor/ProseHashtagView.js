@@ -28,7 +28,7 @@ function getSuggestions(value, validHashtags = []) {
       )
 }
 
-function useHashtagProseState(schema, validHashtags) {
+function useHashtagProseState(schema, validHashtags, addHashtag) {
   function suggestionsStateReducer(state, action) {
     switch (action.type) {
       case OPEN_HASHTAG_OPTIONS:
@@ -71,13 +71,6 @@ function useHashtagProseState(schema, validHashtags) {
     suggestionsStateReducer,
     {}
   )
-  // 1. Decorate hashtag under construction - Done
-  // 2. Open sugestions list while there is such a hashtag under construction. - Done
-  //    Allow the list to change highlight status - Done
-  // 3. Allow selecting a hashtag and replacing the hashtag under construction with the selected final hashtag - Done
-  // 4. Allow not selecting a hashtag, returning the hashtag under construction to a regular text - Done
-
-  // 5. Allow creating a new hashtag by displaying the new hashtag as first option, and allow to select it, adding it to the validHashtags list.
 
   useEffect(() => {
     if (rawEditorState) {
@@ -105,7 +98,10 @@ function useHashtagProseState(schema, validHashtags) {
 
   const insertHashtag = index => {
     if (isNaN(index)) index = suggestionsState.highlightIndex
-    const newHashtag = suggestionsState.list[index]
+    const newHashtag =
+      index > -1
+        ? suggestionsState.list[index]
+        : hashtagUnderConstruction.value.slice(1)
     const newHashtagNode = schema.node('hashtag', null, schema.text(newHashtag))
 
     const interimState = EditorState.create({
@@ -122,6 +118,8 @@ function useHashtagProseState(schema, validHashtags) {
       newHashtagNode
     )
     setEditorState(interimState.apply(tr))
+
+    if (index === -1) addHashtag(newHashtag)
   }
 
   return [
@@ -132,7 +130,7 @@ function useHashtagProseState(schema, validHashtags) {
   ]
 }
 
-const ProseHashtagView = ({ validHashtags, multiline = true }) => {
+const ProseHashtagView = ({ validHashtags, multiline = true, addHashtag }) => {
   const hashtagSchema = new Schema({
     nodes: schemaBasic.spec.nodes
       .addBefore('text', 'hashtag', {
@@ -154,7 +152,7 @@ const ProseHashtagView = ({ validHashtags, multiline = true }) => {
     suggestionsState,
     dispatchSuggestionsChange,
     insertHashtag
-  ] = useHashtagProseState(hashtagSchema, validHashtags)
+  ] = useHashtagProseState(hashtagSchema, validHashtags, addHashtag)
 
   const handleKeyDown = e => {
     switch (e.key) {
@@ -199,7 +197,10 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  addHashtag: newHashtag => dispatch(addHashtag(newHashtag))
+  addHashtag: newHashtag => {
+    debugger
+    dispatch(addHashtag(newHashtag))
+  }
 })
 
 export default connect(
