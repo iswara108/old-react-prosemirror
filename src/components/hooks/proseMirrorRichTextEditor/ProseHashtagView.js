@@ -13,13 +13,11 @@ import SelectHashtags from './SelectHashtags'
 
 const MOVE_TO_NEXT_HASHTAG = 'MOVE_TO_NEXT_HASHTAG'
 const MOVE_TO_PREV_HASHTAG = 'MOVE_TO_PREV_HASHTAG'
-const RESET_HASHTAG_HIGHLIGHT = 'RESET_HASHTAG_HIGHLIGHT'
 const SET_HIGHLIGHT_INDEX = 'SET_HIGHLIGHT_INDEX'
 const OPEN_HASHTAG_OPTIONS = 'OPEN_HASHTAG_OPTIONS'
 const CLOSE_HASHTAG_OPTIONS = 'CLOSE_HASHTAG_OPTIONS'
 
 function getSuggestions(value, validHashtags = []) {
-  console.log('getting suggestions', value, validHashtags)
   const inputValue = deburr(value.trim()).toLowerCase()
   const inputLength = inputValue.length
   return inputLength === 0
@@ -54,8 +52,6 @@ function useHashtagProseState(schema, validHashtags) {
               ? state.highlightIndex - 1
               : state.highlightIndex
         }
-      case RESET_HASHTAG_HIGHLIGHT:
-        return { ...state, highlightIndex: 0 }
       case SET_HIGHLIGHT_INDEX:
         return {
           ...state,
@@ -78,9 +74,9 @@ function useHashtagProseState(schema, validHashtags) {
   // 1. Decorate hashtag under construction - Done
   // 2. Open sugestions list while there is such a hashtag under construction. - Done
   //    Allow the list to change highlight status - Done
+  // 3. Allow selecting a hashtag and replacing the hashtag under construction with the selected final hashtag - Done
+  // 4. Allow not selecting a hashtag, returning the hashtag under construction to a regular text - Done
 
-  // 3. Allow selecting a hashtag and replacing the hashtag under construction with the selected final hashtag
-  // 4. Allow not selecting a hashtag, returning the hashtag under construction to a regular text
   // 5. Allow creating a new hashtag by displaying the new hashtag as first option, and allow to select it, adding it to the validHashtags list.
 
   useEffect(() => {
@@ -107,77 +103,27 @@ function useHashtagProseState(schema, validHashtags) {
     }
   }, [hashtagUnderConstruction])
 
-  const insertHashtag = () => {
-    // const newHashtagNode = schema.node(
-    //   'hashtag',
-    //   null,
-    //   schema.text('test text')
-    // )
-    // const secondState = EditorState.create({
-    //   doc: editorState.doc,
-    //   selection: editorState.selection
-    //   // plugins: editorState.plugins,
-    //   // storedMarks: editorState.storedMarks
-    // })
+  const insertHashtag = index => {
+    if (isNaN(index)) index = suggestionsState.highlightIndex
+    const newHashtag = suggestionsState.list[index]
+    const newHashtagNode = schema.node('hashtag', null, schema.text(newHashtag))
 
-    // debugger
-    // secondState.tr.replaceRangeWith(1, 3, newHashtagNode)
-    // debugger
-    // console.log('new node:', newHashtagNode)
-    // const tr = editorState.tr
-    // // tr.insertText(' test ', 2, 4)
-    // tr.replaceRangeWith(1, 3, newHashtagNode)
-    // debugger
-    // const aaa = editorState.apply(tr)
+    const interimState = EditorState.create({
+      doc: schema.nodeFromJSON(editorState.doc.toJSON()),
+      selection: editorState.selection,
+      plugins: editorState.plugins,
+      storedMarks: editorState.storedMarks
+    })
 
-    // setEditorState(editorState.apply(tr))
-    const parsed = {
-      doc: {
-        type: 'doc',
-        content: [
-          {
-            type: 'paragraph',
-            content: [
-              { type: 'text', text: 'OmOm and ' },
-              {
-                type: 'hashtag',
-                content: [{ type: 'text', text: 'computer' }]
-              },
-              { type: 'text', text: ' Ys;ldfkgjsd;flkgsjdf;lgk jsdfg dfes' }
-            ]
-          }
-        ]
-      },
-      selection: { type: 'text', anchor: 1, head: 1 }
-    }
-
-    setEditorState(
-      EditorState.fromJSON({ schema, plugins: editorState.plugins }, parsed)
+    const tr = interimState.tr
+    tr.replaceRangeWith(
+      hashtagUnderConstruction.start + 1,
+      hashtagUnderConstruction.end + 1,
+      newHashtagNode
     )
+    setEditorState(interimState.apply(tr))
   }
 
-  useEffect(() => {
-    if (editorState && editorState.doc.toString().match(/hashtag/)) {
-      // editorState.tr.insert
-
-      const newHashtagNode = schema.node(
-        'hashtag',
-        null,
-        schema.text('test text')
-      )
-      const secondState = EditorState.create({
-        doc: editorState.doc,
-        selection: editorState.selection
-        // plugins: editorState.plugins,
-        // storedMarks: editorState.storedMarks
-      })
-
-      const tr = secondState.tr
-      // tr.insertText(' test ', 2, 4)
-      tr.replaceRangeWith(21, 23, newHashtagNode)
-      debugger
-    }
-  }, [editorState])
   return [
     editorState,
     suggestionsState,
@@ -188,70 +134,45 @@ function useHashtagProseState(schema, validHashtags) {
 
 const ProseHashtagView = ({ validHashtags, multiline = true }) => {
   const hashtagSchema = new Schema({
-    nodes: {
-      hashtag: {
+    nodes: schemaBasic.spec.nodes
+      .addBefore('text', 'hashtag', {
         group: 'inline',
         atom: true,
         content: 'inline*',
         inline: true,
         toDOM: node => ['hashtag', 0],
         parseDOM: [{ tag: 'hashtag' }]
-      },
-      text: { group: 'inline' },
-      paragraph: {
-        content: 'inline*',
-        toDOM: () => ['p', 0],
-        parseDOM: [{ tag: 'p' }]
-      },
-      doc: { content: 'paragraph' }
-    }
+      })
+      .update(
+        'doc',
+        multiline ? schemaBasic.spec.nodes.get('doc') : { content: 'block' }
+      ),
+    marks: schemaBasic.spec.marks
   })
-
-  // const hashtagSchema = new Schema({
-  //     nodes: schemaBasic.spec.nodes
-  //       .addBefore('text', 'hashtag', {
-  //         group: 'inline',
-  //         atom: true,
-  //         content: 'inline*',
-  //         inline: true,
-  //         toDOM: node => ['hashtag', 0],
-  //         parseDOM: [{ tag: 'hashtag' }]
-  //       })
-  //       .update(
-  //         'doc',
-  //         multiline ? schemaBasic.spec.nodes.get('doc') : { content: 'block' }
-  //       ),
-  //     marks: schemaBasic.spec.marks
-  //   })
-  console.log(hashtagSchema)
   const [
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
     insertHashtag
-  ] = useHashtagProseState(
-    multiline ? schemaBasic : hashtagSchema,
-    validHashtags
-  )
+  ] = useHashtagProseState(hashtagSchema, validHashtags)
+
+  const handleKeyDown = e => {
+    switch (e.key) {
+      case 'ArrowDown':
+        dispatchSuggestionsChange({ type: MOVE_TO_NEXT_HASHTAG })
+        break
+      case 'ArrowUp':
+        dispatchSuggestionsChange({ type: MOVE_TO_PREV_HASHTAG })
+        break
+      case 'Enter':
+        insertHashtag()
+        dispatchSuggestionsChange({ type: CLOSE_HASHTAG_OPTIONS })
+    }
+  }
 
   return (
     <>
-      <ProseView
-        editorState={editorState}
-        onKeyDown={e => {
-          switch (e.key) {
-            case 'ArrowDown':
-              dispatchSuggestionsChange({ type: MOVE_TO_NEXT_HASHTAG })
-              break
-            case 'ArrowUp':
-              dispatchSuggestionsChange({ type: MOVE_TO_PREV_HASHTAG })
-              break
-            case 'Enter':
-              insertHashtag()
-              dispatchSuggestionsChange({ type: SET_HIGHLIGHT_INDEX })
-          }
-        }}
-      />
+      <ProseView editorState={editorState} onKeyDown={handleKeyDown} />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
         <SelectHashtags
           inputValue={suggestionsState.hashtagUnderConstruction.value.slice(1)}
@@ -262,7 +183,10 @@ const ProseHashtagView = ({ validHashtags, multiline = true }) => {
               payload: { index }
             })
           }
-          // setAsSelected={setAsSelected}
+          setAsSelected={index => {
+            insertHashtag(index)
+            dispatchSuggestionsChange({ type: CLOSE_HASHTAG_OPTIONS })
+          }}
           suggestions={suggestionsState.list}
         />
       )}
