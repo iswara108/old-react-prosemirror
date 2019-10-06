@@ -3,8 +3,13 @@ import { EditorState, Plugin } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { EditorView } from 'prosemirror-view'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
+import './richTextEditor.css'
 
-function useProseState(schema = schemaBasic, additionalPlugins = []) {
+function useProseState(
+  schema = schemaBasic,
+  additionalPlugins = [],
+  initialDoc
+) {
   const [editorState, setEditorState] = useState()
 
   useEffect(() => {
@@ -16,7 +21,9 @@ function useProseState(schema = schemaBasic, additionalPlugins = []) {
 
     setEditorState(
       EditorState.create({
-        doc: schema.node('doc', null, schema.node('paragraph', null)),
+        doc:
+          (initialDoc && schema.nodeFromJSON(initialDoc)) ||
+          schema.node('doc', null, schema.node('paragraph', null)),
         plugins: [
           ...exampleSetup({ schema, menuBar: false }),
           syncStatePlugin,

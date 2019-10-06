@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@material-ui/core'
 import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
@@ -6,7 +6,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import { connect } from 'react-redux'
 import { collect } from '../../redux/actions'
 import ProseHashtagView from '../hooks/proseMirrorRichTextEditor/ProseHashtagView'
-import './richTextEditor.css'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -28,6 +27,8 @@ const Collect = props => {
   const [title, setTitle] = useState('')
   const [rteTitle, setRteTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [proseTitle, setProseTitle] = useState(null)
+  const [proseDescription, setProseDescription] = useState({})
 
   const onCollectClick = () => {
     if (!(title && description)) return
@@ -37,41 +38,32 @@ const Collect = props => {
     //TODO: Focus back on title.
   }
 
+  useEffect(() => {
+    console.log(JSON.stringify(proseTitle))
+  }, [proseTitle])
+
   return (
     <>
       <h1>Collect Page</h1>
       <form className={classes.container}>
         <Paper>
           <ProseHashtagView
-            validHashtags={props.validHashtags}
-            multiline={false}
-          />
-          {/* <RichTextEditor
-            id="rte-title"
-            label="Title"
-            required
-            autoFocus
-            onChange={({ target: { value } }) => setRteTitle(value)}
-          /> */}
-          <TextField
             id="title"
-            value={title}
-            className={classes.textField}
-            label="Title"
-            variant="filled"
-            required
-            onChange={({ target: { value } }) => setTitle(value)}
+            label="title"
+            validHashtags={props.validHashtags}
+            includeMarks={false}
+            multiline={false}
+            onChange={doc => setProseTitle(doc)}
+            autoFocus
           />
-          <TextField
+          <ProseHashtagView
             id="description"
-            value={description}
-            className={classes.textField}
-            label="Description"
-            variant="filled"
-            required
-            // multiline
-            onChange={({ target: { value } }) => setDescription(value)}
+            label="description"
+            validHashtags={props.validHashtags}
+            multiline={true}
+            onChange={doc => setProseDescription(doc)}
           />
+
           <Button
             onClick={onCollectClick}
             className={classes.button}

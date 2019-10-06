@@ -28,7 +28,13 @@ function getSuggestions(value, validHashtags = []) {
       )
 }
 
-function useHashtagProseState(schema, validHashtags, addHashtag) {
+function useHashtagProseState(
+  schema,
+  validHashtags,
+  addHashtag,
+  onChange,
+  initialDoc
+) {
   function suggestionsStateReducer(state, action) {
     switch (action.type) {
       case OPEN_HASHTAG_OPTIONS:
@@ -43,7 +49,13 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
       case CLOSE_HASHTAG_OPTIONS:
         return {}
       case MOVE_TO_NEXT_HASHTAG:
-        return { ...state, highlightIndex: state.highlightIndex + 1 }
+        return {
+          ...state,
+          highlightIndex:
+            state.highlightIndex < state.list.length - 1
+              ? state.highlightIndex + 1
+              : state.highlightIndex
+        }
       case MOVE_TO_PREV_HASHTAG:
         return {
           ...state,
@@ -64,7 +76,7 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
     }
   }
 
-  const rawEditorState = useProseState(schema, [hashtagPlugin])
+  const rawEditorState = useProseState(schema, [hashtagPlugin], initialDoc)
   const [editorState, setEditorState] = useState()
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
@@ -126,6 +138,10 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
     if (index === -1) addHashtag(newHashtag)
   }
 
+  useEffect(() => editorState && onChange(editorState.doc.toJSON()), [
+    editorState
+  ])
+
   return [
     editorState,
     suggestionsState,
@@ -134,7 +150,16 @@ function useHashtagProseState(schema, validHashtags, addHashtag) {
   ]
 }
 
-const ProseHashtagView = ({ validHashtags, multiline = true, addHashtag }) => {
+const ProseHashtagView = ({
+  validHashtags,
+  multiline = true,
+  addHashtag,
+  onChange,
+  id,
+  initialDoc,
+  includeMarks = true
+}) => {
+  console.log('includeMarks', includeMarks)
   const hashtagSchema = new Schema({
     nodes: schemaBasic.spec.nodes
       .addBefore('text', 'hashtag', {
@@ -143,38 +168,55 @@ const ProseHashtagView = ({ validHashtags, multiline = true, addHashtag }) => {
         content: 'inline*',
         inline: true,
         toDOM: node => ['hashtag', 0],
-        parseDOM: [{ tag: 'hashtag' }]
+        parseDOM: [{ tag: 'hashtag' }],
+        selectable: true,
+        draggable: true
       })
       .update(
         'doc',
         multiline ? schemaBasic.spec.nodes.get('doc') : { content: 'block' }
       ),
-    marks: schemaBasic.spec.marks
+    marks: includeMarks ? schemaBasic.spec.marks : undefined
   })
+  console.log(hashtagSchema)
   const [
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
     insertHashtag
-  ] = useHashtagProseState(hashtagSchema, validHashtags, addHashtag)
+  ] = useHashtagProseState(
+    hashtagSchema,
+    validHashtags,
+    addHashtag,
+    onChange,
+    initialDoc
+  )
 
   const handleKeyDown = e => {
+    if (isNaN(suggestionsState.highlightIndex)) return
+
     switch (e.key) {
       case 'ArrowDown':
         dispatchSuggestionsChange({ type: MOVE_TO_NEXT_HASHTAG })
+        e.preventDefault()
         break
       case 'ArrowUp':
         dispatchSuggestionsChange({ type: MOVE_TO_PREV_HASHTAG })
+        e.preventDefault()
         break
       case 'Enter':
+        console.log('enter entered')
         insertHashtag()
         dispatchSuggestionsChange({ type: CLOSE_HASHTAG_OPTIONS })
+        e.preventDefault()
+        break
+      default:
     }
   }
 
   return (
     <>
-      <ProseView editorState={editorState} onKeyDown={handleKeyDown} />
+      <ProseView id={id} editorState={editorState} onKeyDown={handleKeyDown} />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
         <SelectHashtags
           inputValue={suggestionsState.hashtagUnderConstruction.value.slice(1)}

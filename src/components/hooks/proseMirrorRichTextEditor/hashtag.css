@@ -4,6 +4,10 @@
   margin-bottom: -1px;
 }
 
+.ProseMirror-selectednode {
+  background: #fcb
+}
+
 hashtag {
   background: rgb(214, 170, 170);
   /* margin-bottom: -1px; */
