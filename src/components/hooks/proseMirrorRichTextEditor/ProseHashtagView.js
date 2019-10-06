@@ -157,7 +157,8 @@ const ProseHashtagView = ({
   onChange,
   id,
   initialDoc,
-  includeMarks = true
+  includeMarks = true,
+  autoFocus
 }) => {
   console.log('includeMarks', includeMarks)
   const hashtagSchema = new Schema({
@@ -216,7 +217,12 @@ const ProseHashtagView = ({
 
   return (
     <>
-      <ProseView id={id} editorState={editorState} onKeyDown={handleKeyDown} />
+      <ProseView
+        id={id}
+        editorState={editorState}
+        onKeyDown={handleKeyDown}
+        autoFocus={autoFocus}
+      />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
         <SelectHashtags
           inputValue={suggestionsState.hashtagUnderConstruction.value.slice(1)}

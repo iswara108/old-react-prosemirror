@@ -36,7 +36,7 @@ function useProseState(
   return editorState
 }
 
-function useProseView(editorState) {
+function useProseView({ editorState, autoFocus }) {
   const dom = useRef(document.createElement('div'))
   dom.current.style.backgroundColor = 'lightYellow'
   const [view, setView] = useState(null)
@@ -58,6 +58,10 @@ function useProseView(editorState) {
       }
     }
   }, [editorState])
+
+  useEffect(() => {
+    if (view && autoFocus) view.focus()
+  }, [view])
 
   return dom
 }
