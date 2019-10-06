@@ -1,8 +1,8 @@
 import * as actionTypes from './actionTypes'
 
-const collect = ({ title, description }) => ({
+const collect = payload => ({
   type: actionTypes.COLLECT,
-  payload: { title, description }
+  payload
 })
 
 const clarifyToNextAction = ({ id, title, description }) => ({

@@ -24,17 +24,14 @@ const useStyles = makeStyles(theme => ({
 
 const Collect = props => {
   const classes = useStyles()
-  const [title, setTitle] = useState('')
-  const [rteTitle, setRteTitle] = useState('')
-  const [description, setDescription] = useState('')
   const [proseTitle, setProseTitle] = useState(null)
   const [proseDescription, setProseDescription] = useState({})
 
   const onCollectClick = () => {
-    if (!(title && description)) return
-    props.collect({ title, description })
-    setTitle('')
-    setDescription('')
+    debugger
+    props.collect(proseTitle, proseDescription)
+    setProseTitle(null)
+    setProseDescription(null)
     //TODO: Focus back on title.
   }
 
@@ -82,5 +79,8 @@ export default connect(
   state => ({
     validHashtags: state.validHashtags
   }),
-  { collect }
+  dispatch => ({
+    collect: (proseTitle, proseDescription) =>
+      dispatch(collect({ proseTitle, proseDescription }))
+  })
 )(Collect)
