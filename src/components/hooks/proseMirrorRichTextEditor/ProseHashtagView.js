@@ -43,8 +43,8 @@ const ProseHashtagView = ({
         e.preventDefault()
         break
       case 'Enter':
-        insertHashtag()
         dispatchSuggestionsChange({ type: actionTypes.CLOSE_HASHTAG_OPTIONS })
+        insertHashtag()
         e.preventDefault()
         break
       default:
@@ -70,10 +70,10 @@ const ProseHashtagView = ({
             })
           }
           setAsSelected={index => {
-            insertHashtag(index)
             dispatchSuggestionsChange({
               type: actionTypes.CLOSE_HASHTAG_OPTIONS
             })
+            insertHashtag(index)
           }}
           suggestions={suggestionsState.list}
         />

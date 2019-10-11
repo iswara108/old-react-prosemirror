@@ -1,6 +1,6 @@
 import React, { useReducer, useState, useEffect } from 'react'
 import deburr from 'lodash/deburr'
-import { EditorState } from 'prosemirror-state'
+import { EditorState, NodeSelection } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import { useProseState } from './proseMirrorHooks'
@@ -97,7 +97,10 @@ function useHashtagProseState({
           findHashtagUnderCursor(rawEditorState.doc, rawEditorState.selection)
         )
 
-        if (JSON.stringify(editorState) !== JSON.stringify(rawEditorState)) {
+        if (
+          !editorState.doc.eq(rawEditorState.doc) ||
+          !editorState.selection.eq(rawEditorState.selection)
+        ) {
           setEditorState(rawEditorState)
         }
       } else {
@@ -109,6 +112,8 @@ function useHashtagProseState({
   // Whenever the hashtag under construction changed its state
   useEffect(() => {
     if (hashtagUnderConstruction) {
+      console.log('dispatching open')
+      console.log(suggestionsState)
       dispatchSuggestionsChange({ type: OPEN_HASHTAG_OPTIONS })
     } else {
       dispatchSuggestionsChange({ type: CLOSE_HASHTAG_OPTIONS })
@@ -137,15 +142,37 @@ function useHashtagProseState({
       hashtagUnderConstruction.end + 1,
       newHashtagNode
     )
+
+    // TODO: Add text of a space ' ' after this node.
+
     setEditorState(interimState.apply(tr))
 
     // Add new selection into the global list of hashtags
     if (index === -1) addHashtagAction(newHashtag)
   }
 
-  useEffect(() => editorState && onChange(editorState.doc.toJSON()), [
-    editorState
-  ])
+  useEffect(() => {
+    if (editorState) {
+      // If cursor (empty selection) on a resolved hashtag, select the whole hashtag
+      const $cursor = editorState.selection.$cursor
+      if ($cursor) {
+        if ($cursor.parent.type.name === 'hashtag') {
+          const hashtagSelection = NodeSelection.create(
+            editorState.doc,
+            $cursor.before($cursor.depth)
+          )
+          const tr = editorState.tr
+          tr.setSelection(hashtagSelection)
+
+          // Do not proceed with further hooks here.
+          // "OnChange" will be called on the next iteration of this function (due to the call to setEditorState)
+          return setEditorState(editorState.apply(tr))
+        }
+      }
+
+      onChange(editorState.doc.toJSON())
+    }
+  }, [editorState])
 
   return [
     editorState,

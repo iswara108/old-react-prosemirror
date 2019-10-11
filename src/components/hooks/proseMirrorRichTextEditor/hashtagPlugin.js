@@ -37,11 +37,11 @@ const hashtagPlugin = new Plugin({
         return set
       } else return null
     },
-    nodeViews: {
-      hashtag(node, view, getPos) {
-        return new HashtagView(node, view, getPos)
-      }
-    }
+    // nodeViews: {
+    //   hashtag(node, view, getPos) {
+    //     return new HashtagView(node, view, getPos)
+    //   }
+    // }
   }
 })
 

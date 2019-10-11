@@ -28,7 +28,6 @@ const Collect = props => {
   const [proseDescription, setProseDescription] = useState({})
 
   const onCollectClick = () => {
-    debugger
     props.collect(proseTitle, proseDescription)
     setProseTitle(null)
     setProseDescription(null)
