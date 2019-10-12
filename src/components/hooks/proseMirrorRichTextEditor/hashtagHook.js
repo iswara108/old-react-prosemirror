@@ -36,7 +36,7 @@ function useHashtagProseState({
     switch (action.type) {
       case OPEN_HASHTAG_OPTIONS:
         const list = getSuggestions(
-          hashtagUnderConstruction.value.slice(1),
+          hashtagUnderConstruction.value,
           validHashtags
         )
         console.log('opening', state, action, list)
@@ -124,9 +124,7 @@ function useHashtagProseState({
   const insertHashtag = index => {
     if (isNaN(index)) index = suggestionsState.highlightIndex
     const newHashtag =
-      index > -1
-        ? suggestionsState.list[index]
-        : hashtagUnderConstruction.value.slice(1)
+      index > -1 ? suggestionsState.list[index] : hashtagUnderConstruction.value
     const newHashtagNode = schema.node('hashtag', null, schema.text(newHashtag))
 
     const interimState = EditorState.create({
@@ -137,13 +135,17 @@ function useHashtagProseState({
     })
 
     const tr = interimState.tr
+
     tr.replaceRangeWith(
       hashtagUnderConstruction.start + 1,
       hashtagUnderConstruction.end + 1,
       newHashtagNode
     )
 
-    // TODO: Add text of a space ' ' after this node.
+    tr.insert(
+      tr.mapping.map(hashtagUnderConstruction.end + 1),
+      schema.text(' ')
+    )
 
     setEditorState(interimState.apply(tr))
 
@@ -153,6 +155,7 @@ function useHashtagProseState({
 
   useEffect(() => {
     if (editorState) {
+      console.log(editorState.selection.anchor, editorState.selection.head)
       // If cursor (empty selection) on a resolved hashtag, select the whole hashtag
       const $cursor = editorState.selection.$cursor
       if ($cursor) {

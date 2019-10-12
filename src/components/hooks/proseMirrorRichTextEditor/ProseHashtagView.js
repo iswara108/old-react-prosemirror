@@ -61,7 +61,7 @@ const ProseHashtagView = ({
       />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
         <SelectHashtags
-          inputValue={suggestionsState.hashtagUnderConstruction.value.slice(1)}
+          inputValue={suggestionsState.hashtagUnderConstruction.value}
           highlightIndex={suggestionsState.highlightIndex || 0}
           setHighlightIndex={index =>
             dispatchSuggestionsChange({

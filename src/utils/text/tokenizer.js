@@ -17,6 +17,7 @@ export default text => {
   for (var i = 0; i <= text.length; i++) {
     if (text[i] === '#') {
       var hashtag = Hashtag.parse(i, text)
+      hashtag.value = hashtag.value.slice(1)
 
       if (typeof hashtag !== 'number') {
         i = hashtag.end

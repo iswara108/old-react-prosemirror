@@ -19,7 +19,6 @@ const getTokens = doc => {
 
 const findHashtagUnderCursor = (doc, selection) => {
   const tokens = getTokens(doc)
-
   const lowestSelection = Math.min(selection.anchor, selection.head)
   const highestSelection = Math.max(selection.anchor, selection.head)
 
