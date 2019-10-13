@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import Typography from '@material-ui/core/Typography'
+import ProseHashtagView from '../hooks/proseMirrorRichTextEditor/ProseHashtagView'
 
 const Lists = props => (
   <>
@@ -8,10 +9,18 @@ const Lists = props => (
     <ul>
       {props.items.inbox.map((item, index) => (
         <li key={item.id}>
-          {JSON.stringify(item.proseTitle)}
-          <Typography variant="body1">
-            {JSON.stringify(item.proseDescription)}
-          </Typography>
+          <ProseHashtagView
+            multiline={false}
+            initialDoc={item.proseTitle}
+            label={'title'}
+            disableEdit
+          />
+          <ProseHashtagView
+            multiline={true}
+            initialDoc={item.proseDescription}
+            label={'description'}
+            disableEdit
+          />
         </li>
       ))}
     </ul>

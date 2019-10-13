@@ -14,7 +14,8 @@ const ProseHashtagView = ({
   initialDoc,
   includeMarks = true,
   autoFocus,
-  label
+  label,
+  disableEdit = false
 }) => {
   const [
     editorState,
@@ -27,7 +28,8 @@ const ProseHashtagView = ({
     onChange,
     initialDoc,
     multiline,
-    includeMarks
+    includeMarks,
+    disableEdit
   })
 
   const handleKeyDown = e => {

@@ -1,6 +1,6 @@
 import React, { useReducer, useState, useEffect } from 'react'
 import deburr from 'lodash/deburr'
-import { EditorState, NodeSelection } from 'prosemirror-state'
+import { EditorState, NodeSelection, Plugin } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import { useProseState } from './proseMirrorHooks'
@@ -30,7 +30,8 @@ function useHashtagProseState({
   onChange,
   initialDoc,
   multiline,
-  includeMarks
+  includeMarks,
+  disableEdit
 }) {
   function suggestionsStateReducer(state, action) {
     switch (action.type) {
@@ -81,7 +82,17 @@ function useHashtagProseState({
   }
 
   const schema = hashtagSchema(multiline, includeMarks)
-  const rawEditorState = useProseState(schema, [hashtagPlugin], initialDoc)
+
+  const plugins = []
+  if (disableEdit) {
+    plugins.push(
+      new Plugin({
+        filterTransaction: transaction => !transaction.docChanged
+      })
+    )
+  }
+  plugins.push(hashtagPlugin)
+  const rawEditorState = useProseState(schema, plugins, initialDoc)
   const [editorState, setEditorState] = useState()
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
@@ -173,7 +184,7 @@ function useHashtagProseState({
         }
       }
 
-      onChange(editorState.doc.toJSON())
+      if (onChange) onChange(editorState.doc.toJSON())
     }
   }, [editorState])
 
