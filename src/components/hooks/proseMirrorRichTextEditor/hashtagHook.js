@@ -223,5 +223,6 @@ export {
   SET_HIGHLIGHT_INDEX,
   OPEN_HASHTAG_OPTIONS,
   CLOSE_HASHTAG_OPTIONS,
+  hashtagSchema,
   useHashtagProseState as default
 }
