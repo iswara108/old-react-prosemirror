@@ -103,7 +103,7 @@ function useHashtagProseState({
   // Whenever the document changed due to user input
   useEffect(() => {
     if (rawEditorState) {
-      if (editorState) {
+      if (editorState && !editorState.selection.eq(rawEditorState.selection)) {
         setHashtagUnderConstruction(
           findHashtagUnderCursor(rawEditorState.doc, rawEditorState.selection)
         )
