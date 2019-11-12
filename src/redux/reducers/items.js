@@ -1,5 +1,4 @@
 import uuid from 'uuid/v1'
-import { Node } from 'prosemirror-model'
 import * as actionTypes from '../actions/actionTypes'
 import { hashtagSchema } from '../../components/hooks/proseMirrorRichTextEditor/hashtagHook'
 
@@ -14,7 +13,14 @@ const extractHashtags = proseDoc => {
 
   return Array.from(new Set(hashtags))
 }
-export default (state = { inbox: [], nextActions: [] }, action) => {
+export default (
+  state = {
+    inbox: [],
+    nextActions: [],
+    currentlyCollecting: { proseTitle: undefined, proseDescription: undefined }
+  },
+  action
+) => {
   switch (action.type) {
     case actionTypes.COLLECT: {
       const newState = { ...state }
@@ -35,6 +41,15 @@ export default (state = { inbox: [], nextActions: [] }, action) => {
       newState.nextActions.push(action.payload)
 
       return newState
+    }
+    case actionTypes.UPDATE_CURRENTLY_COLLECTION: {
+      return {
+        ...state,
+        currentlyCollecting: {
+          proseTitle: action.payload.proseTitle,
+          proseDescription: action.payload.proseDescription
+        }
+      }
     }
     default: {
       return state

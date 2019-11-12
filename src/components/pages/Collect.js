@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
 import { connect } from 'react-redux'
-import { collect } from '../../redux/actions'
+import { collect, updateCurrentlyCollecting } from '../../redux/actions'
 import ProseHashtagView from '../hooks/proseMirrorRichTextEditor/ProseHashtagView'
 
 const useStyles = makeStyles(theme => ({
@@ -24,19 +24,16 @@ const useStyles = makeStyles(theme => ({
 
 const Collect = props => {
   const classes = useStyles()
-  const [proseTitle, setProseTitle] = useState(null)
-  const [proseDescription, setProseDescription] = useState({})
-
+  const { proseTitle, proseDescription } = props
   const onCollectClick = () => {
     props.collect(proseTitle, proseDescription)
-    setProseTitle(null)
-    setProseDescription(null)
+    props.updateCurrentlyCollecting(null, null)
     //TODO: Focus back on title.
   }
 
   useEffect(() => {
-    console.log(JSON.stringify(proseTitle))
-  }, [proseTitle])
+    props.updateCurrentlyCollecting(proseTitle, proseDescription)
+  }, [proseTitle, proseDescription])
 
   return (
     <>
@@ -44,27 +41,30 @@ const Collect = props => {
       <form className={classes.container}>
         <Paper>
           <ProseHashtagView
-            id="title"
-            label="title"
+            id='title'
+            label='title'
             validHashtags={props.validHashtags}
             includeMarks={false}
             multiline={false}
-            onChange={doc => setProseTitle(doc)}
+            content={proseTitle}
+            onChange={doc =>
+              props.updateCurrentlyCollecting(doc, proseDescription)
+            }
             autoFocus
           />
           <ProseHashtagView
-            id="description"
-            label="description"
+            id='description'
+            label='description'
             validHashtags={props.validHashtags}
-            multiline={true}
-            onChange={doc => setProseDescription(doc)}
+            content={proseDescription}
+            onChange={doc => props.updateCurrentlyCollecting(proseTitle, doc)}
           />
 
           <Button
             onClick={onCollectClick}
             className={classes.button}
-            color="primary"
-            variant="contained"
+            color='primary'
+            variant='contained'
           >
             Collect
           </Button>
@@ -76,10 +76,14 @@ const Collect = props => {
 
 export default connect(
   state => ({
-    validHashtags: state.validHashtags
+    validHashtags: state.validHashtags,
+    proseTitle: state.items.currentlyCollecting.proseTitle,
+    proseDescription: state.items.currentlyCollecting.proseDescription
   }),
   dispatch => ({
     collect: (proseTitle, proseDescription) =>
-      dispatch(collect({ proseTitle, proseDescription }))
+      dispatch(collect({ proseTitle, proseDescription })),
+    updateCurrentlyCollecting: (proseTitle, proseDescription) =>
+      dispatch(updateCurrentlyCollecting({ proseTitle, proseDescription }))
   })
 )(Collect)

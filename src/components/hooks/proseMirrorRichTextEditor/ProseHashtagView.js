@@ -5,18 +5,20 @@ import ProseView from './ProseView'
 import SelectHashtags from './SelectHashtags'
 import useHashtagProseState, * as actionTypes from './hashtagHook'
 
-const ProseHashtagView = ({
-  validHashtags,
-  multiline = true,
-  addHashtagAction,
-  onChange,
-  id,
-  initialDoc,
-  includeMarks = true,
-  autoFocus,
-  label,
-  disableEdit = false
-}) => {
+const ProseHashtagView = props => {
+  const {
+    validHashtags,
+    multiline = true,
+    addHashtagAction,
+    onChange,
+    id,
+    content,
+    includeMarks = true,
+    autoFocus,
+    label,
+    disableEdit = false
+  } = props
+
   const [
     editorState,
     suggestionsState,
@@ -26,7 +28,7 @@ const ProseHashtagView = ({
     validHashtags,
     addHashtagAction,
     onChange,
-    initialDoc,
+    content,
     multiline,
     includeMarks,
     disableEdit

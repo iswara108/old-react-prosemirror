@@ -1,5 +1,6 @@
 import * as actionTypes from './actionTypes'
 
+// payload expected to have {proseTitle, proseDescription}
 const collect = payload => ({
   type: actionTypes.COLLECT,
   payload
@@ -17,4 +18,10 @@ const addHashtag = hashtag => {
   }
 }
 
-export { collect, clarifyToNextAction, addHashtag }
+// payload expected to have {proseTitle, proseDescription}
+const updateCurrentlyCollecting = payload => ({
+  type: actionTypes.UPDATE_CURRENTLY_COLLECTION,
+  payload
+})
+
+export { collect, clarifyToNextAction, addHashtag, updateCurrentlyCollecting }

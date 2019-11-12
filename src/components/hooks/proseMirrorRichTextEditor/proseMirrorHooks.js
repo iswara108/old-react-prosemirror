@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { EditorState, Plugin } from 'prosemirror-state'
+import { EditorState, Plugin, Selection } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { EditorView } from 'prosemirror-view'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
@@ -8,11 +8,19 @@ import './richTextEditor.css'
 function useProseState(
   schema = schemaBasic,
   additionalPlugins = [],
-  initialDoc
+  content
 ) {
+  const contentNode =
+    (content && schema.nodeFromJSON(content)) ||
+    schema.node('doc', null, schema.node('paragraph', null))
+
   const [editorState, setEditorState] = useState()
 
+  // Called whenever changed from the parent
   useEffect(() => {
+    if (editorState && editorState.doc.toString() === contentNode.toString())
+      return
+
     const syncStatePlugin = new Plugin({
       view: () => ({
         update: view => setEditorState(view.state)
@@ -21,9 +29,8 @@ function useProseState(
 
     setEditorState(
       EditorState.create({
-        doc:
-          (initialDoc && schema.nodeFromJSON(initialDoc)) ||
-          schema.node('doc', null, schema.node('paragraph', null)),
+        doc: contentNode,
+        selection: Selection.atEnd(contentNode),
         plugins: [
           ...exampleSetup({ schema, menuBar: false }),
           syncStatePlugin,
@@ -31,8 +38,7 @@ function useProseState(
         ]
       })
     )
-  }, [])
-
+  }, [contentNode && contentNode.toString()])
   return editorState
 }
 

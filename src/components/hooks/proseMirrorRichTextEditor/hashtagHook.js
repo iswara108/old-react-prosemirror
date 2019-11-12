@@ -1,4 +1,8 @@
-import React, { useReducer, useState, useEffect } from 'react'
+import React, {
+  useReducer,
+  useState,
+  useEffect
+} from 'react' /* eslint-disable-line no-unused-vars */
 import deburr from 'lodash/deburr'
 import { EditorState, NodeSelection, Plugin } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
@@ -24,66 +28,69 @@ function getSuggestions(value, validHashtags = []) {
       )
 }
 
+function suggestionsStateReducer(
+  hashtagUnderConstruction,
+  validHashtags,
+  state,
+  action
+) {
+  switch (action.type) {
+    case OPEN_HASHTAG_OPTIONS:
+      const list = getSuggestions(hashtagUnderConstruction.value, validHashtags)
+
+      return {
+        hashtagUnderConstruction,
+        list,
+        highlightIndex: list.length
+          ? Math.min(
+              list.length - 1,
+              state.highlightIndex === -1 ? 0 : state.highlightedIndex
+            ) || 0
+          : -1
+      }
+    case CLOSE_HASHTAG_OPTIONS:
+      return {}
+    case MOVE_TO_NEXT_HASHTAG:
+      return {
+        ...state,
+        highlightIndex:
+          state.highlightIndex < state.list.length - 1
+            ? state.highlightIndex + 1
+            : state.highlightIndex
+      }
+    case MOVE_TO_PREV_HASHTAG:
+      return {
+        ...state,
+        highlightIndex:
+          state.highlightIndex >= 0
+            ? state.highlightIndex - 1
+            : state.highlightIndex
+      }
+    case SET_HIGHLIGHT_INDEX:
+      return {
+        ...state,
+        highlightIndex: action.payload
+          ? action.payload.index
+          : state.highlightIndex
+      }
+    default:
+      return state
+  }
+}
+
 function useHashtagProseState({
   validHashtags,
   addHashtagAction,
   onChange,
-  initialDoc,
+  content,
   multiline,
   includeMarks,
   disableEdit
 }) {
-  function suggestionsStateReducer(state, action) {
-    switch (action.type) {
-      case OPEN_HASHTAG_OPTIONS:
-        const list = getSuggestions(
-          hashtagUnderConstruction.value,
-          validHashtags
-        )
-        console.log('opening', state, action, list)
-        return {
-          hashtagUnderConstruction,
-          list,
-          highlightIndex: list.length
-            ? Math.min(
-                list.length - 1,
-                state.highlightIndex === -1 ? 0 : state.highlightedIndex
-              ) || 0
-            : -1
-        }
-      case CLOSE_HASHTAG_OPTIONS:
-        return {}
-      case MOVE_TO_NEXT_HASHTAG:
-        return {
-          ...state,
-          highlightIndex:
-            state.highlightIndex < state.list.length - 1
-              ? state.highlightIndex + 1
-              : state.highlightIndex
-        }
-      case MOVE_TO_PREV_HASHTAG:
-        return {
-          ...state,
-          highlightIndex:
-            state.highlightIndex >= 0
-              ? state.highlightIndex - 1
-              : state.highlightIndex
-        }
-      case SET_HIGHLIGHT_INDEX:
-        return {
-          ...state,
-          highlightIndex: action.payload
-            ? action.payload.index
-            : state.highlightIndex
-        }
-      default:
-        return state
-    }
-  }
-
   const schema = hashtagSchema(multiline, includeMarks)
 
   const plugins = []
+
   if (disableEdit) {
     plugins.push(
       new Plugin({
@@ -91,40 +98,41 @@ function useHashtagProseState({
       })
     )
   }
+
   plugins.push(hashtagPlugin)
-  const rawEditorState = useProseState(schema, plugins, initialDoc)
+
+  const rawEditorState = useProseState(
+    schema,
+    plugins,
+    content
+  )
   const [editorState, setEditorState] = useState()
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
-    suggestionsStateReducer,
+    suggestionsStateReducer.bind(null, hashtagUnderConstruction, validHashtags),
     {}
   )
 
   // Whenever the document changed due to user input
   useEffect(() => {
-    if (rawEditorState) {
-      if (editorState && !editorState.selection.eq(rawEditorState.selection)) {
-        setHashtagUnderConstruction(
-          findHashtagUnderCursor(rawEditorState.doc, rawEditorState.selection)
-        )
+    if (!rawEditorState) return // first time before rawEditorState is initialized
+    if (!editorState) return setEditorState(rawEditorState) // first time initialize editorState
 
-        if (
-          !editorState.doc.eq(rawEditorState.doc) ||
-          !editorState.selection.eq(rawEditorState.selection)
-        ) {
-          setEditorState(rawEditorState)
-        }
-      } else {
-        setEditorState(rawEditorState)
-      }
+    // if either the selection or content changed - update editorState and check if we need to show the hastag options
+    if (
+      !editorState.doc.eq(rawEditorState.doc) ||
+      !editorState.selection.eq(rawEditorState.selection)
+    ) {
+      setEditorState(rawEditorState)
+      setHashtagUnderConstruction(
+        findHashtagUnderCursor(rawEditorState.doc, rawEditorState.selection)
+      )
     }
   }, [rawEditorState])
 
   // Whenever the hashtag under construction changed its state
   useEffect(() => {
     if (hashtagUnderConstruction) {
-      console.log('dispatching open')
-      console.log(suggestionsState)
       dispatchSuggestionsChange({ type: OPEN_HASHTAG_OPTIONS })
     } else {
       dispatchSuggestionsChange({ type: CLOSE_HASHTAG_OPTIONS })
@@ -165,27 +173,24 @@ function useHashtagProseState({
   }
 
   useEffect(() => {
-    if (editorState) {
-      console.log(editorState.selection.anchor, editorState.selection.head)
-      // If cursor (empty selection) on a resolved hashtag, select the whole hashtag
-      const $cursor = editorState.selection.$cursor
-      if ($cursor) {
-        if ($cursor.parent.type.name === 'hashtag') {
-          const hashtagSelection = NodeSelection.create(
-            editorState.doc,
-            $cursor.before($cursor.depth)
-          )
-          const tr = editorState.tr
-          tr.setSelection(hashtagSelection)
+    if (!editorState) return
 
-          // Do not proceed with further hooks here.
-          // "OnChange" will be called on the next iteration of this function (due to the call to setEditorState)
-          return setEditorState(editorState.apply(tr))
-        }
-      }
+    // If cursor (empty selection) on a resolved hashtag, select the whole hashtag
+    const $cursor = editorState.selection.$cursor
+    if ($cursor && $cursor.parent.type.name === 'hashtag') {
+      const hashtagSelection = NodeSelection.create(
+        editorState.doc,
+        $cursor.before($cursor.depth)
+      )
+      const tr = editorState.tr
+      tr.setSelection(hashtagSelection)
 
-      if (onChange) onChange(editorState.doc.toJSON())
+      // Do not proceed with further hooks here.
+      // "OnChange" will be called on the next iteration of this function (due to the call to setEditorState)
+      return setEditorState(editorState.apply(tr))
     }
+
+    if (onChange) onChange(editorState.doc.toJSON())
   }, [editorState])
 
   return [

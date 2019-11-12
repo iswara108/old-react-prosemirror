@@ -11,13 +11,13 @@ const Lists = props => (
         <li key={item.id}>
           <ProseHashtagView
             multiline={false}
-            initialDoc={item.proseTitle}
+            content={item.proseTitle}
             label={'title'}
             disableEdit
           />
           <ProseHashtagView
             multiline={true}
-            initialDoc={item.proseDescription}
+            content={item.proseDescription}
             label={'description'}
             disableEdit
           />
