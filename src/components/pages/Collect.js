@@ -25,15 +25,34 @@ const useStyles = makeStyles(theme => ({
 const Collect = props => {
   const classes = useStyles()
   const { proseTitle, proseDescription } = props
+
+  const [hasCollected, setHasCollected] = useState(true)
+
   const onCollectClick = () => {
     props.collect(proseTitle, proseDescription)
     props.updateCurrentlyCollecting(null, null)
+    setHasCollected(true)
     //TODO: Focus back on title.
   }
 
   useEffect(() => {
     props.updateCurrentlyCollecting(proseTitle, proseDescription)
   }, [proseTitle, proseDescription])
+
+  // Cannot use ref because the ref is being controlled by the proseMirror hook.
+  // Instead of transposing the element up the chain -
+  // use Vanilla Javascript to focus back into the title.
+  useEffect(() => {
+    if (!hasCollected) return
+    
+    // Run after clearing inputs have completed.
+    setTimeout(() => {
+      const $title = document.querySelector('#title')
+      if ($title && $title.firstElementChild) $title.firstElementChild.focus()
+    }, 0)
+
+    setHasCollected(false)
+  }, [hasCollected])
 
   return (
     <>

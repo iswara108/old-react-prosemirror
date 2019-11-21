@@ -44,7 +44,7 @@ function useProseState(
 
 function useProseView({ editorState, autoFocus }) {
   const dom = useRef(document.createElement('div'))
-  dom.current.style.backgroundColor = 'lightYellow'
+
   const [view, setView] = useState(null)
 
   useEffect(() => {
