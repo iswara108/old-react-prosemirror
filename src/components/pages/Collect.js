@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { connect } from 'react-redux'
 import { collect, updateCurrentlyCollecting } from '../../redux/actions'
 import ProseHashtagView from '../hooks/proseMirrorRichTextEditor/ProseHashtagView'
+import ProseDefaultView from '../hooks/proseMirrorRichTextEditor/ProseDefaultView'
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -71,10 +72,9 @@ const Collect = props => {
             }
             autoFocus
           />
-          <ProseHashtagView
+          <ProseDefaultView
             id='description'
             label='description'
-            validHashtags={props.validHashtags}
             content={proseDescription}
             onChange={doc => props.updateCurrentlyCollecting(proseTitle, doc)}
           />

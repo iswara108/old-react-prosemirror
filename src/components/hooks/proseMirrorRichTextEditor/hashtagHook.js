@@ -7,9 +7,9 @@ import deburr from 'lodash/deburr'
 import { EditorState, NodeSelection, Plugin } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
-import { useProseState } from './proseMirrorHooks'
 import hashtagPlugin from './hashtagPlugin'
 import { findHashtagUnderCursor } from './hashtagUtils'
+import useDefaultProseState from './proseDefaultHook'
 
 const MOVE_TO_NEXT_HASHTAG = 'MOVE_TO_NEXT_HASHTAG'
 const MOVE_TO_PREV_HASHTAG = 'MOVE_TO_PREV_HASHTAG'
@@ -89,46 +89,30 @@ function useHashtagProseState({
 }) {
   const schema = hashtagSchema(multiline, includeMarks)
 
-  const plugins = []
+  const plugins = [hashtagPlugin]
 
-  if (disableEdit) {
-    plugins.push(
-      new Plugin({
-        filterTransaction: transaction => !transaction.docChanged
-      })
-    )
-  }
-
-  plugins.push(hashtagPlugin)
-
-  const rawEditorState = useProseState(
+  const [editorState, setEditorState] = useDefaultProseState({
     schema,
-    plugins,
-    content
-  )
-  const [editorState, setEditorState] = useState()
+    onChange,
+    content,
+    multiline,
+    includeMarks,
+    disableEdit,
+    plugins
+  })
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
     suggestionsStateReducer.bind(null, hashtagUnderConstruction, validHashtags),
     {}
   )
 
-  // Whenever the document changed due to user input
   useEffect(() => {
-    if (!rawEditorState) return // first time before rawEditorState is initialized
-    if (!editorState) return setEditorState(rawEditorState) // first time initialize editorState
+    if (!editorState) return
 
-    // if either the selection or content changed - update editorState and check if we need to show the hastag options
-    if (
-      !editorState.doc.eq(rawEditorState.doc) ||
-      !editorState.selection.eq(rawEditorState.selection)
-    ) {
-      setEditorState(rawEditorState)
-      setHashtagUnderConstruction(
-        findHashtagUnderCursor(rawEditorState.doc, rawEditorState.selection)
-      )
-    }
-  }, [rawEditorState])
+    setHashtagUnderConstruction(
+      findHashtagUnderCursor(editorState.doc, editorState.selection)
+    )
+  }, [editorState])
 
   // Whenever the hashtag under construction changed its state
   useEffect(() => {
@@ -176,6 +160,10 @@ function useHashtagProseState({
     if (!editorState) return
 
     // If cursor (empty selection) on a resolved hashtag, select the whole hashtag
+
+    // TODO: This behaviour should also happen on a selection
+    // (say a user selects a cursor to the left of a hashtag,
+    // then presses shift+right a few times, this should also include the whole hashtag)
     const $cursor = editorState.selection.$cursor
     if ($cursor && $cursor.parent.type.name === 'hashtag') {
       const hashtagSelection = NodeSelection.create(
@@ -185,12 +173,8 @@ function useHashtagProseState({
       const tr = editorState.tr
       tr.setSelection(hashtagSelection)
 
-      // Do not proceed with further hooks here.
-      // "OnChange" will be called on the next iteration of this function (due to the call to setEditorState)
       return setEditorState(editorState.apply(tr))
     }
-
-    if (onChange) onChange(editorState.doc.toJSON())
   }, [editorState])
 
   return [
