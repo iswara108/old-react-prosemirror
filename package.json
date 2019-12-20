@@ -4,35 +4,38 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@material-ui/core": "4.4.0",
-    "@material-ui/icons": "4.2.1",
+    "@material-ui/core": "4.7.2",
+    "@material-ui/icons": "4.5.1",
     "prosemirror-commands": "^1.0.8",
     "prosemirror-example-setup": "^1.0.1",
-    "prosemirror-history": "^1.0.4",
+    "prosemirror-history": "^1.1.3",
     "prosemirror-keymap": "^1.0.1",
     "prosemirror-mentions": "^1.0.0",
     "prosemirror-model": "^1.7.2",
     "prosemirror-schema-basic": "^1.0.1",
     "prosemirror-state": "^1.2.4",
-    "prosemirror-view": "^1.10.3",
-    "react": "16.8.6",
-    "react-dom": "16.8.6",
-    "react-redux": "7.1.1",
-    "react-router-dom": "5.0.1",
-    "react-scripts": "3.0.1",
+    "prosemirror-view": "^1.13.5",
+    "react": "16.12.0",
+    "react-dom": "16.12.0",
+    "react-redux": "7.1.3",
+    "react-router-dom": "5.1.2",
+    "react-scripts": "3.3.0",
     "redux": "4.0.4",
     "use-debounce": "^3.0.1",
     "uuid": "3.3.3",
     "xregexp": "^4.2.4"
   },
   "devDependencies": {
-    "typescript": "3.3.3"
+    "cypress": "^3.8.0",
+    "typescript": "3.7.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test-cypress": "cypress open",
+    "test-cypress-run": "cypress run"
   },
   "browserslist": [
     ">0.2%",
@@ -49,6 +52,5 @@
   "bugs": {
     "url": "https://github.com/iswara108/task-manager-gtd/issues"
   },
-  "homepage": "https://github.com/iswara108/task-manager-gtd#readme",
   "description": ""
 }

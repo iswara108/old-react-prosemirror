@@ -1,4 +1,6 @@
 import React from 'react'
+import 'prosemirror-view/style/prosemirror.css'
+
 import { useProseView } from './proseMirrorHooks'
 
 export default props => {

@@ -11,7 +11,11 @@ const getTokens = doc => {
         end: hashtag.end + pos - 1,
         value: hashtag.value
       }))
-      tokens = Object.assign(tokens, token)
+
+      tokens = {
+        hashtags: tokens.hashtags.concat(token.hashtags),
+        mentions: tokens.mentions.concat(token.mentions)
+      }
     }
   })
   return tokens

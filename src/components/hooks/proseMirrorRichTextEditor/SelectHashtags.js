@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 
 export default ({
   inputValue,
-  suggestions,
+  suggestionList,
   highlightIndex,
   setHighlightIndex,
   setAsSelected
@@ -36,7 +36,7 @@ export default ({
       <div className={classes.container}>
         <div>
           <Paper className={classes.paper} square>
-            {!suggestions.some(suggestion => suggestion === inputValue) && (
+            {!suggestionList.some(suggestion => suggestion === inputValue) && (
               <Suggestion
                 suggestion={`${inputValue} (create new)`}
                 index={-1}
@@ -48,7 +48,7 @@ export default ({
                 setAsSelected={setAsSelected}
               />
             )}
-            {suggestions.map((suggestion, index) => (
+            {suggestionList.map((suggestion, index) => (
               <Suggestion
                 suggestion={suggestion}
                 index={index}

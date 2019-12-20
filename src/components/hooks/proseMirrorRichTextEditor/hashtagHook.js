@@ -4,7 +4,7 @@ import React, {
   useEffect
 } from 'react' /* eslint-disable-line no-unused-vars */
 import deburr from 'lodash/deburr'
-import { EditorState, NodeSelection, Plugin } from 'prosemirror-state'
+import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import hashtagPlugin from './hashtagPlugin'
@@ -17,7 +17,10 @@ const SET_HIGHLIGHT_INDEX = 'SET_HIGHLIGHT_INDEX'
 const OPEN_HASHTAG_OPTIONS = 'OPEN_HASHTAG_OPTIONS'
 const CLOSE_HASHTAG_OPTIONS = 'CLOSE_HASHTAG_OPTIONS'
 
-function getSuggestions(value, validHashtags = []) {
+const HASHTAG_SCHEMA_NODE_TYPE = 'hashtag'
+
+// Get relevant suggestions for the given hashtag under construction.
+function getRelevantSuggestions(value, validHashtags = []) {
   const inputValue = deburr(value.trim()).toLowerCase()
   const inputLength = inputValue.length
   return inputLength === 0
@@ -28,6 +31,7 @@ function getSuggestions(value, validHashtags = []) {
       )
 }
 
+// Reducer for the suggestionsState, which contains the state of the suggestions being displayed.
 function suggestionsStateReducer(
   hashtagUnderConstruction,
   validHashtags,
@@ -36,29 +40,34 @@ function suggestionsStateReducer(
 ) {
   switch (action.type) {
     case OPEN_HASHTAG_OPTIONS:
-      const list = getSuggestions(hashtagUnderConstruction.value, validHashtags)
+      const suggestionList = getRelevantSuggestions(
+        hashtagUnderConstruction.value,
+        validHashtags
+      )
 
       return {
         hashtagUnderConstruction,
-        list,
-        highlightIndex: list.length
+        suggestionList,
+        highlightIndex: suggestionList.length
           ? Math.min(
-              list.length - 1,
+              suggestionList.length - 1,
               state.highlightIndex === -1 ? 0 : state.highlightedIndex
             ) || 0
-          : -1
+          : -1 // if there are no relevant suggestions - set highlight to creating a new hashtag
       }
     case CLOSE_HASHTAG_OPTIONS:
       return {}
     case MOVE_TO_NEXT_HASHTAG:
+      // move highlight index downward as long as it doesn't reach the end of the suggestions
       return {
         ...state,
         highlightIndex:
-          state.highlightIndex < state.list.length - 1
+          state.highlightIndex < state.suggestionList.length - 1
             ? state.highlightIndex + 1
             : state.highlightIndex
       }
     case MOVE_TO_PREV_HASHTAG:
+      // move highlight index upward as long as it doesn't reach the beginning of the suggestions
       return {
         ...state,
         highlightIndex:
@@ -91,6 +100,7 @@ function useHashtagProseState({
 
   const plugins = [hashtagPlugin]
 
+  // call main proseEditor hook to manage editorState
   const [editorState, setEditorState] = useDefaultProseState({
     schema,
     onChange,
@@ -100,12 +110,18 @@ function useHashtagProseState({
     disableEdit,
     plugins
   })
+
+  // hashtagUnderConstruction is the text beginning with # while the cursor is on it.
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
+
+  // suggestionsState is the state management of the displaying of hashtag options and their manipulation
+  // (highlighting and selecting a hashtag).
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
     suggestionsStateReducer.bind(null, hashtagUnderConstruction, validHashtags),
     {}
   )
 
+  // Whenever the state changes - color the hashtag under construction - if any
   useEffect(() => {
     if (!editorState) return
 
@@ -114,7 +130,7 @@ function useHashtagProseState({
     )
   }, [editorState])
 
-  // Whenever the hashtag under construction changed its state
+  // Whenever the hashtag under construction changed its state - update the suggestions list
   useEffect(() => {
     if (hashtagUnderConstruction) {
       dispatchSuggestionsChange({ type: OPEN_HASHTAG_OPTIONS })
@@ -123,12 +139,22 @@ function useHashtagProseState({
     }
   }, [hashtagUnderConstruction])
 
-  // Insert the selected hashtag into the WYSIWYG editor
-  const insertHashtag = index => {
-    if (isNaN(index)) index = suggestionsState.highlightIndex
-    const newHashtag =
-      index > -1 ? suggestionsState.list[index] : hashtagUnderConstruction.value
-    const newHashtagNode = schema.node('hashtag', null, schema.text(newHashtag))
+  // Insert the selected hashtag as a resolved hashtag.
+  // When "selectedIndex" is passed as -1, it implies creating a new hashtag out of the one under construction.
+  const insertHashtag = selectedIndex => {
+    if (isNaN(selectedIndex)) selectedIndex = suggestionsState.highlightIndex
+
+    // resolve the new hashtag text - either from the selected suggestion or from the hashtag under construction.
+    const newHashtagText =
+      selectedIndex > -1
+        ? suggestionsState.suggestionList[selectedIndex]
+        : hashtagUnderConstruction.value
+
+    const newHashtagNode = schema.node(
+      HASHTAG_SCHEMA_NODE_TYPE,
+      null,
+      schema.text(newHashtagText)
+    )
 
     const interimState = EditorState.create({
       doc: schema.nodeFromJSON(editorState.doc.toJSON()),
@@ -137,35 +163,39 @@ function useHashtagProseState({
       storedMarks: editorState.storedMarks
     })
 
-    const tr = interimState.tr
+    const transaction = interimState.tr
 
-    tr.replaceRangeWith(
+    // insert the resolved hashtag node instead of the hashtag under construction.
+    transaction.replaceRangeWith(
       hashtagUnderConstruction.start + 1,
       hashtagUnderConstruction.end + 1,
       newHashtagNode
     )
 
-    tr.insert(
-      tr.mapping.map(hashtagUnderConstruction.end + 1),
+    // insert a space in a text node after the resolved hashtag.
+    transaction.insert(
+      transaction.mapping.map(hashtagUnderConstruction.end + 1),
       schema.text(' ')
     )
 
-    setEditorState(interimState.apply(tr))
+    setEditorState(interimState.apply(transaction))
 
     // Add new selection into the global list of hashtags
-    if (index === -1) addHashtagAction(newHashtag)
+    if (selectedIndex === -1) addHashtagAction(newHashtagText)
   }
 
+  // whenever the state changes -
+  // update selection to encopass the resolved hashtag in its entirety, in case the selection or cursor are touching it.
   useEffect(() => {
+    // TODO: refactor - isolate $cursor from either $cursor or $head of the selection. In case the selection is before the hashtag in the beginning of the paragraph - ensure it is inserted as text node.
     if (!editorState) return
 
-    // If cursor (empty selection) on a resolved hashtag, select the whole hashtag
-
-    // TODO: This behaviour should also happen on a selection
-    // (say a user selects a cursor to the left of a hashtag,
-    // then presses shift+right a few times, this should also include the whole hashtag)
-    const $cursor = editorState.selection.$cursor
-    if ($cursor && $cursor.parent.type.name === 'hashtag') {
+    const $cursor = editorState.selection.$cursor || editorState.selection.$head
+    if (
+      editorState.selection.$cursor &&
+      editorState.selection.$cursor.node(editorState.selection.$cursor.depth)
+        .type.name === HASHTAG_SCHEMA_NODE_TYPE
+    ) {
       const hashtagSelection = NodeSelection.create(
         editorState.doc,
         $cursor.before($cursor.depth)
@@ -173,6 +203,23 @@ function useHashtagProseState({
       const tr = editorState.tr
       tr.setSelection(hashtagSelection)
 
+      return setEditorState(editorState.apply(tr))
+    }
+
+    // TODO: find another solution - perhaps - confirming there is a whitespace after the end of the hashtag and only then moving the cursor after the whitespace.
+    if (
+      editorState.selection.$cursor &&
+      editorState.selection.$cursor.nodeBefore &&
+      editorState.selection.$cursor.nodeBefore.type.name ===
+        HASHTAG_SCHEMA_NODE_TYPE
+    ) {
+      const newSelection = TextSelection.create(
+        editorState.doc,
+        editorState.selection.$cursor.pos + 1
+      )
+
+      const tr = editorState.tr
+      tr.setSelection(newSelection)
       return setEditorState(editorState.apply(tr))
     }
   }, [editorState])
@@ -185,16 +232,17 @@ function useHashtagProseState({
   ]
 }
 
+// create the schema specs for an editor with hashtags.
 function hashtagSchema(multiline, includeMarks) {
-  return new Schema({
+  const schema = new Schema({
     nodes: schemaBasic.spec.nodes
-      .addBefore('text', 'hashtag', {
+      .addBefore('text', HASHTAG_SCHEMA_NODE_TYPE, {
         group: 'inline',
         atom: true,
-        content: 'inline*',
+        content: 'text*',
         inline: true,
-        toDOM: node => ['hashtag', 0],
-        parseDOM: [{ tag: 'hashtag' }],
+        toDOM: node => [HASHTAG_SCHEMA_NODE_TYPE, 0],
+        parseDOM: [{ tag: HASHTAG_SCHEMA_NODE_TYPE }],
         selectable: true,
         draggable: true
       })
@@ -204,6 +252,7 @@ function hashtagSchema(multiline, includeMarks) {
       ),
     marks: includeMarks ? schemaBasic.spec.marks : undefined
   })
+  return schema
 }
 
 export {

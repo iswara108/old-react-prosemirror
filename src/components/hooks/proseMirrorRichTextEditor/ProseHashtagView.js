@@ -79,7 +79,7 @@ const ProseHashtagView = props => {
             })
             insertHashtag(index)
           }}
-          suggestions={suggestionsState.list}
+          suggestionList={suggestionsState.suggestionList}
         />
       )}
     </>
@@ -96,7 +96,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   }
 })
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProseHashtagView)
+export default connect(mapStateToProps, mapDispatchToProps)(ProseHashtagView)

@@ -1,2 +1,5 @@
 node_modules/
 .vscode/
+/build/
+/cypress/videos/
+/cypress/screenshots/
