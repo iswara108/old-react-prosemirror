@@ -1,21 +1,16 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import { addHashtag as addHashtagAction } from '../../../redux/actions'
 import ProseView from './ProseView'
 import SelectHashtags from './SelectHashtags'
 import useHashtagProseState, * as actionTypes from './hashtagHook'
 
-const ProseHashtagView = props => {
+export default props => {
   const {
-    validHashtags,
     multiline = true,
-    addHashtagAction,
     onChange,
     id,
     content,
     includeMarks = true,
     autoFocus,
-    label,
     disableEdit = false
   } = props
 
@@ -25,8 +20,6 @@ const ProseHashtagView = props => {
     dispatchSuggestionsChange,
     insertHashtag
   ] = useHashtagProseState({
-    validHashtags,
-    addHashtagAction,
     onChange,
     content,
     multiline,
@@ -85,15 +78,3 @@ const ProseHashtagView = props => {
     </>
   )
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  validHashtags: state.validHashtags
-})
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  addHashtagAction: newHashtag => {
-    dispatch(addHashtagAction(newHashtag))
-  }
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProseHashtagView)

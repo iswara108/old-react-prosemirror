@@ -3,12 +3,18 @@ import React, {
   useState,
   useEffect
 } from 'react' /* eslint-disable-line no-unused-vars */
+import { useSelector, useDispatch } from 'react-redux'
+
 import deburr from 'lodash/deburr'
 import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import hashtagPlugin from './hashtagPlugin'
-import { findHashtagUnderCursor } from './hashtagUtils'
+import {
+  HASHTAG_SCHEMA_NODE_TYPE,
+  findHashtagUnderCursor
+} from './hashtagUtils'
+import { addHashtag as addHashtagAction } from '../../../redux/actions'
 import useDefaultProseState from './proseDefaultHook'
 
 const MOVE_TO_NEXT_HASHTAG = 'MOVE_TO_NEXT_HASHTAG'
@@ -16,8 +22,6 @@ const MOVE_TO_PREV_HASHTAG = 'MOVE_TO_PREV_HASHTAG'
 const SET_HIGHLIGHT_INDEX = 'SET_HIGHLIGHT_INDEX'
 const OPEN_HASHTAG_OPTIONS = 'OPEN_HASHTAG_OPTIONS'
 const CLOSE_HASHTAG_OPTIONS = 'CLOSE_HASHTAG_OPTIONS'
-
-const HASHTAG_SCHEMA_NODE_TYPE = 'hashtag'
 
 // Get relevant suggestions for the given hashtag under construction.
 function getRelevantSuggestions(value, validHashtags = []) {
@@ -39,6 +43,7 @@ function suggestionsStateReducer(
   action
 ) {
   switch (action.type) {
+    // set suggestion list state upon opening the hashtag suggestions
     case OPEN_HASHTAG_OPTIONS:
       const suggestionList = getRelevantSuggestions(
         hashtagUnderConstruction.value,
@@ -48,17 +53,21 @@ function suggestionsStateReducer(
       return {
         hashtagUnderConstruction,
         suggestionList,
-        highlightIndex: suggestionList.length
+        highlightIndex: suggestionList.length // set the highlight index according to its previous state upon opening the suggestion list:
           ? Math.min(
+              // Limit the highlight index to the number of suggestions to account for situations in which the number of suggestions decrease.
               suggestionList.length - 1,
-              state.highlightIndex === -1 ? 0 : state.highlightedIndex
-            ) || 0
+              state.highlightIndex === -1 ? 0 : state.highlightedIndex // default to keep the hightlight
+            ) || 0 // If there is no previous highlight - default to the first option.
           : -1 // if there are no relevant suggestions - set highlight to creating a new hashtag
       }
+
+    // hide selection list
     case CLOSE_HASHTAG_OPTIONS:
       return {}
+
+    // move highlight index downward as long as it doesn't reach the end of the suggestions
     case MOVE_TO_NEXT_HASHTAG:
-      // move highlight index downward as long as it doesn't reach the end of the suggestions
       return {
         ...state,
         highlightIndex:
@@ -88,14 +97,15 @@ function suggestionsStateReducer(
 }
 
 function useHashtagProseState({
-  validHashtags,
-  addHashtagAction,
   onChange,
   content,
   multiline,
   includeMarks,
   disableEdit
 }) {
+  const validHashtags = useSelector(state => state.validHashtags)
+  const dispatch = useDispatch()
+
   const schema = hashtagSchema(multiline, includeMarks)
 
   const plugins = [hashtagPlugin]
@@ -181,7 +191,7 @@ function useHashtagProseState({
     setEditorState(interimState.apply(transaction))
 
     // Add new selection into the global list of hashtags
-    if (selectedIndex === -1) addHashtagAction(newHashtagText)
+    if (selectedIndex === -1) dispatch(addHashtagAction(newHashtagText))
   }
 
   // whenever the state changes -
