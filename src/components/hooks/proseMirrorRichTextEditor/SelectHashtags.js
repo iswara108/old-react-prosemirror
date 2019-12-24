@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
-import Suggestion from './Sugestion'
+import Suggestion from './Suggestion'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -36,7 +36,7 @@ export default ({
       <div className={classes.container}>
         <div>
           <Paper className={classes.paper} square>
-            {!suggestionList.some(suggestion => suggestion === inputValue) && (
+            {!suggestionList.some(suggestion => suggestion === inputValue) && ( // display option to create new hashtag only if there is no exact match.
               <Suggestion
                 suggestion={`${inputValue} (create new)`}
                 index={-1}

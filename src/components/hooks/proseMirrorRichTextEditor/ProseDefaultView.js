@@ -1,16 +1,15 @@
 import React from 'react'
-
 import ProseView from './ProseView'
 import useDefaultProseState from './proseDefaultHook'
 
 export default props => {
   const {
-    multiline = true,
-    onChange,
     id,
     content,
+    onChange,
+    multiline = true,
     includeMarks = true,
-    autoFocus,
+    autoFocus = false,
     disableEdit = false
   } = props
 
