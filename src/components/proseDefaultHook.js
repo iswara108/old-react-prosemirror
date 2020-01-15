@@ -1,6 +1,6 @@
 import React, {
   useState,
-  useEffect
+  useLayoutEffect
 } from 'react' /* eslint-disable-line no-unused-vars */
 import { Plugin } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
@@ -28,7 +28,7 @@ function useDefaultProseState({
   const [editorState, setEditorState] = useState()
 
   // Whenever the document changed due to user input
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!rawEditorState) return // first time before rawEditorState is initialized
     if (!editorState) return setEditorState(rawEditorState) // first time initialize editorState
 
@@ -41,7 +41,7 @@ function useDefaultProseState({
     }
   }, [rawEditorState])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editorState) return
 
     if (onChange) onChange(editorState.doc.toJSON())

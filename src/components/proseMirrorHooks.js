@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useLayoutEffect, useRef } from 'react'
 import { EditorState, Plugin, Selection } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { EditorView } from 'prosemirror-view'
@@ -17,7 +17,7 @@ function useProseState(
   const [editorState, setEditorState] = useState()
 
   // Called whenever changed from the parent
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (editorState && editorState.doc.toString() === contentNode.toString())
       return
 
@@ -47,7 +47,7 @@ function useProseView({ editorState, autoFocus }) {
 
   const [view, setView] = useState(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (editorState && !view) {
       setView(
         new EditorView(dom.current, {
@@ -57,7 +57,7 @@ function useProseView({ editorState, autoFocus }) {
     }
   }, [editorState, view])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (view && editorState) {
       if (view.state !== editorState) {
         view.updateState(editorState)
@@ -65,7 +65,7 @@ function useProseView({ editorState, autoFocus }) {
     }
   }, [editorState])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (view && autoFocus) view.focus()
   }, [view])
 

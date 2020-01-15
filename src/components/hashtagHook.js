@@ -3,7 +3,6 @@ import React, {
   useState,
   useEffect
 } from 'react' /* eslint-disable-line no-unused-vars */
-import { useSelector, useDispatch } from 'react-redux'
 
 import deburr from 'lodash/deburr'
 import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
@@ -14,7 +13,6 @@ import {
   HASHTAG_SCHEMA_NODE_TYPE,
   findHashtagUnderCursor
 } from './hashtagUtils'
-import { addHashtag as addHashtagAction } from '../../../redux/actions'
 import useDefaultProseState from './proseDefaultHook'
 
 const MOVE_TO_NEXT_HASHTAG = 'MOVE_TO_NEXT_HASHTAG'
@@ -101,11 +99,10 @@ function useHashtagProseState({
   content,
   multiline,
   includeMarks,
-  disableEdit
+  disableEdit,
+  availableHashtagsList,
+  addHashtagToList
 }) {
-  const validHashtags = useSelector(state => state.validHashtags)
-  const dispatch = useDispatch()
-
   const schema = hashtagSchema(multiline, includeMarks)
 
   const plugins = [hashtagPlugin]
