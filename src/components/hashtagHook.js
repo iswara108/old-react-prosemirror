@@ -100,8 +100,7 @@ function useHashtagProseState({
   multiline,
   includeMarks,
   disableEdit,
-  availableHashtagsList,
-  addHashtagToList
+  hashtagSuggestionList
 }) {
   const schema = hashtagSchema(multiline, includeMarks)
 
@@ -124,7 +123,7 @@ function useHashtagProseState({
   // suggestionsState is the state management of the displaying of hashtag options and their manipulation
   // (highlighting and selecting a hashtag).
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
-    suggestionsStateReducer.bind(null, hashtagUnderConstruction, validHashtags),
+    suggestionsStateReducer.bind(null, hashtagUnderConstruction, hashtagSuggestionList),
     {}
   )
 
@@ -188,7 +187,7 @@ function useHashtagProseState({
     setEditorState(interimState.apply(transaction))
 
     // Add new selection into the global list of hashtags
-    if (selectedIndex === -1) dispatch(addHashtagAction(newHashtagText))
+    // if (selectedIndex === -1) dispatch(addHashtagAction(newHashtagText))
   }
 
   // whenever the state changes -

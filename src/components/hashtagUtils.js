@@ -8,7 +8,7 @@ const getTokens = doc => {
     // do not consider resolved hashtag nodes.
     if (parent.type.name === HASHTAG_SCHEMA_NODE_TYPE) return false // do not recurse over children of a resolved hashtag
     if (!node.isText || node.type.name === HASHTAG_SCHEMA_NODE_TYPE) return // only handle text nodes which might have a token
-    
+
     const token = Tokenizer(node.text)
     token.hashtags = token.hashtags.map(hashtag => ({
       start: hashtag.start + pos - 1,
@@ -36,4 +36,8 @@ const findHashtagUnderCursor = (doc, selection) => {
   )
 }
 
-export { findHashtagUnderCursor, HASHTAG_SCHEMA_NODE_TYPE }
+const findAllHashtags = doc => {
+  return getTokens(doc).hashtags
+}
+
+export { findHashtagUnderCursor, findAllHashtags, HASHTAG_SCHEMA_NODE_TYPE }

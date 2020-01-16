@@ -11,7 +11,8 @@ export default props => {
     content,
     includeMarks = true,
     autoFocus,
-    disableEdit = false
+    disableEdit = false,
+    hashtagSuggestionList = []
   } = props
 
   const [
@@ -24,7 +25,8 @@ export default props => {
     content,
     multiline,
     includeMarks,
-    disableEdit
+    disableEdit,
+    hashtagSuggestionList
   })
 
   const handleKeyDown = e => {

@@ -1,14 +1,19 @@
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import { Plugin } from 'prosemirror-state'
-import { findHashtagUnderCursor } from './hashtagUtils'
+import { findAllHashtags } from './hashtagUtils'
 import './hashtag.css'
 
 function decorateHashtags(doc, selection) {
-  const hashtag = findHashtagUnderCursor(doc, selection)
-  if (hashtag)
-    return Decoration.inline(hashtag.start + 1, hashtag.end + 1, {
-      class: 'hashtag-under-construction'
-    })
+  const hashtags = findAllHashtags(doc)
+
+  return DecorationSet.create(
+    doc,
+    hashtags.map(hashtag =>
+      Decoration.inline(hashtag.start + 1, hashtag.end + 1, {
+        class: 'hashtag'
+      })
+    )
+  )
 }
 
 const hashtagPlugin = new Plugin({
@@ -24,11 +29,7 @@ const hashtagPlugin = new Plugin({
 
   props: {
     decorations(editorState) {
-      const decoration = this.getState(editorState)
-      if (decoration) {
-        const set = DecorationSet.create(editorState.doc, [decoration])
-        return set
-      } else return null
+      return this.getState(editorState)
     }
   }
 })
