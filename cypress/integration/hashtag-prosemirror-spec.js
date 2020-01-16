@@ -43,4 +43,6 @@ describe('rich text editor with hashtags', () => {
     ['#read', '#office', '#hot-chocolate'],
     'hashtag at the beginning, middle & end'
   )
+
+  it('gives hashtag suggestions', () => {})
 })
