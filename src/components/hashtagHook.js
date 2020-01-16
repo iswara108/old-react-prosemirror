@@ -22,12 +22,12 @@ const OPEN_HASHTAG_OPTIONS = 'OPEN_HASHTAG_OPTIONS'
 const CLOSE_HASHTAG_OPTIONS = 'CLOSE_HASHTAG_OPTIONS'
 
 // Get relevant suggestions for the given hashtag under construction.
-function getRelevantSuggestions(value, validHashtags = []) {
+function getRelevantSuggestions(value, hashtagSuggestionList = []) {
   const inputValue = deburr(value.trim()).toLowerCase()
   const inputLength = inputValue.length
   return inputLength === 0
     ? []
-    : validHashtags.filter(
+    : hashtagSuggestionList.filter(
         suggestion =>
           suggestion.slice(0, inputLength).toLowerCase() === inputValue
       )
@@ -36,7 +36,7 @@ function getRelevantSuggestions(value, validHashtags = []) {
 // Reducer for the suggestionsState, which contains the state of the suggestions being displayed.
 function suggestionsStateReducer(
   hashtagUnderConstruction,
-  validHashtags,
+  hashtagSuggestionList,
   state,
   action
 ) {
@@ -45,7 +45,7 @@ function suggestionsStateReducer(
     case OPEN_HASHTAG_OPTIONS:
       const suggestionList = getRelevantSuggestions(
         hashtagUnderConstruction.value,
-        validHashtags
+        hashtagSuggestionList
       )
 
       return {
@@ -95,6 +95,7 @@ function suggestionsStateReducer(
 }
 
 function useHashtagProseState({
+  focusViewHook,
   onChange,
   content,
   multiline,
@@ -123,11 +124,15 @@ function useHashtagProseState({
   // suggestionsState is the state management of the displaying of hashtag options and their manipulation
   // (highlighting and selecting a hashtag).
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
-    suggestionsStateReducer.bind(null, hashtagUnderConstruction, hashtagSuggestionList),
+    suggestionsStateReducer.bind(
+      null,
+      hashtagUnderConstruction,
+      hashtagSuggestionList
+    ),
     {}
   )
 
-  // Whenever the state changes - color the hashtag under construction - if any
+  // Whenever the state changes - color all the hashtags
   useEffect(() => {
     if (!editorState) return
 
@@ -185,6 +190,9 @@ function useHashtagProseState({
     )
 
     setEditorState(interimState.apply(transaction))
+
+    // Invoke back the keyboard on mobile
+    focusViewHook()
 
     // Add new selection into the global list of hashtags
     // if (selectedIndex === -1) dispatch(addHashtagAction(newHashtagText))

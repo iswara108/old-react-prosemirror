@@ -15,12 +15,17 @@ export default props => {
     hashtagSuggestionList = []
   } = props
 
+  // TODO: Refactor to useRef
+  // This is used to trigger the keyboard back on mobile
+  const focusViewHook = () => document.querySelector(`#${id} > div`).focus()
+
   const [
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
     insertHashtag
   ] = useHashtagProseState({
+    focusViewHook,
     onChange,
     content,
     multiline,
