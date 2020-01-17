@@ -1,11 +1,15 @@
 beforeEach(() => {
-  cy.visit('/')
+  cy.visit('/', {
+    onBeforeLoad: contentWindow => {
+      contentWindow.hashtagImmutableListFixture = ['#office', '#computer']
+    }
+  })
 })
 
 describe('rich text editor with hashtags', () => {
   const testColorDifference = (text, hashtags, description) => {
     it('color difference ' + description, () => {
-      cy.get('#prosemirror-hashtag').type(text)
+      cy.get('#prosemirror-hashtag-all').type(text)
 
       hashtags.forEach(hashtag => {
         cy.contains(hashtag).should('have.class', 'hashtag')
@@ -44,5 +48,9 @@ describe('rich text editor with hashtags', () => {
     'hashtag at the beginning, middle & end'
   )
 
-  it('gives hashtag suggestions', () => {})
+  it('gives hashtag suggestions', () => {
+    cy.get('#prosemirror-hashtag-immutables')
+      .type('Do paperwork #of{enter}')
+      .should('contain', 'Do paperwork #office')
+  })
 })
