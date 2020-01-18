@@ -11,12 +11,13 @@ function App() {
   return (
     <>
       <ReactProseMirror
-        id="prosemirror"
+        id="prosemirror-multiline"
         label="description"
         content={undefined}
         onChange={doc => console.info(doc.toString())}
         multiline
       />
+      <ReactProseMirror id="prosemirror-singleline" label="description" />
       {hashtagListFixture && (
         <ReactProseMirror
           id="prosemirror-hashtag-immutables"
