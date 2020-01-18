@@ -4,6 +4,7 @@ import ReactProseMirror from './components/ReactProseMirror'
 
 function App() {
   const [hashtagListFixture, setHashtagListFixture] = useState()
+  const [hashtagListDynamic, setHashtagListDynamic] = useState([])
 
   useEffect(() => {
     setHashtagListFixture(window.hashtagListFixture)
@@ -30,9 +31,12 @@ function App() {
       <ReactProseMirror
         id="prosemirror-hashtag-mutables"
         label="Hastag Prosemirror"
-        hashtagSuggestionList={hashtagListFixture}
+        hashtagSuggestionList={hashtagListDynamic}
         hashtags="mutable"
         multiline
+        onNewHashtag={hashtag =>
+          setHashtagListDynamic([...hashtagListDynamic, hashtag])
+        }
       />
     </>
   )

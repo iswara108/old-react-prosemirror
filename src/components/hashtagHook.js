@@ -101,7 +101,9 @@ function useHashtagProseState({
   multiline,
   disableMarks,
   disableEdit,
-  hashtagSuggestionList
+  hashtagSuggestionList,
+  onNewHashtag,
+  hashtagsType
 }) {
   const schema = hashtagSchema(multiline, disableMarks)
 
@@ -195,7 +197,7 @@ function useHashtagProseState({
     focusViewHook()
 
     // Add new selection into the global list of hashtags
-    // if (selectedIndex === -1) dispatch(addHashtagAction(newHashtagText))
+    if (selectedIndex === -1) onNewHashtag(newHashtagText)
   }
 
   // whenever the state changes -
@@ -265,7 +267,7 @@ function hashtagSchema(multiline, disableMarks) {
         'doc',
         multiline ? schemaBasic.spec.nodes.get('doc') : { content: 'block' }
       ),
-    marks: disableMarks ? schemaBasic.spec.marks : undefined
+    marks: disableMarks ? undefined : schemaBasic.spec.marks
   })
   return schema
 }

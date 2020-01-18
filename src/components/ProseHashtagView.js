@@ -12,7 +12,9 @@ export default props => {
     disableMarks = false,
     autoFocus,
     disableEdit = false,
-    hashtagSuggestionList = []
+    hashtagSuggestionList = [],
+    onNewHashtag,
+    hashtags: hashtagsType
   } = props
 
   // TODO: Refactor to useRef
@@ -31,7 +33,9 @@ export default props => {
     multiline,
     disableMarks,
     disableEdit,
-    hashtagSuggestionList
+    hashtagSuggestionList,
+    onNewHashtag,
+    hashtagsType
   })
 
   const handleKeyDown = e => {
