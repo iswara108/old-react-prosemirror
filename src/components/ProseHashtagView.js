@@ -5,11 +5,11 @@ import useHashtagProseState, * as actionTypes from './hashtagHook'
 
 export default props => {
   const {
-    multiline = true,
+    multiline = false,
     onChange,
     id,
     content,
-    includeMarks = true,
+    disableMarks = false,
     autoFocus,
     disableEdit = false,
     hashtagSuggestionList = []
@@ -29,7 +29,7 @@ export default props => {
     onChange,
     content,
     multiline,
-    includeMarks,
+    disableMarks,
     disableEdit,
     hashtagSuggestionList
   })

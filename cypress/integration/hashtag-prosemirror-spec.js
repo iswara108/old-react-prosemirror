@@ -1,7 +1,7 @@
 beforeEach(() => {
   cy.visit('/', {
     onBeforeLoad: contentWindow => {
-      contentWindow.hashtagImmutableListFixture = ['#office', '#computer']
+      contentWindow.hashtagListFixture = ['#office', '#computer']
     }
   })
 })
@@ -9,7 +9,7 @@ beforeEach(() => {
 describe('rich text editor with hashtags', () => {
   const testColorDifference = (text, hashtags, description) => {
     it('color difference ' + description, () => {
-      cy.get('#prosemirror-hashtag-all').type(text)
+      cy.get('#prosemirror-hashtag-mutables').type(text)
 
       hashtags.forEach(hashtag => {
         cy.contains(hashtag).should('have.class', 'hashtag')

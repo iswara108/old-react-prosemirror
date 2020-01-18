@@ -1,6 +1,6 @@
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import { Plugin } from 'prosemirror-state'
-import { findAllHashtags } from './hashtagUtils'
+import { findAllHashtags, findHashtagUnderCursor } from './hashtagUtils'
 import './hashtag.css'
 
 function decorateHashtags(doc, selection) {
@@ -30,6 +30,18 @@ const hashtagPlugin = new Plugin({
   props: {
     decorations(editorState) {
       return this.getState(editorState)
+    },
+    handleDOMEvents: {
+      keydown: (view, event) => {
+        // In case of a multiline view, disable "Enter" key when hashtag is under construction to allow resolving hashtag via the "Enter" key.
+        if (event.key === 'Enter') {
+          const hashtagUnderConstruction = findHashtagUnderCursor(
+            view.state.doc,
+            view.state.selection
+          )
+          if (hashtagUnderConstruction) event.preventDefault()
+        }
+      }
     }
   }
 })

@@ -1,8 +1,8 @@
-import React, {
+import React /* eslint-disable-line no-unused-vars */, {
   useReducer,
   useState,
   useEffect
-} from 'react' /* eslint-disable-line no-unused-vars */
+} from 'react'
 
 import deburr from 'lodash/deburr'
 import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
@@ -22,7 +22,7 @@ const OPEN_HASHTAG_OPTIONS = 'OPEN_HASHTAG_OPTIONS'
 const CLOSE_HASHTAG_OPTIONS = 'CLOSE_HASHTAG_OPTIONS'
 
 // Get relevant suggestions for the given hashtag under construction.
-function getRelevantSuggestions(value, hashtagSuggestionList = []) {
+function getRelevantSuggestions(value = '', hashtagSuggestionList = []) {
   const inputValue = deburr(value.trim()).toLowerCase()
   const inputLength = inputValue.length
   return inputLength === 0
@@ -99,11 +99,11 @@ function useHashtagProseState({
   onChange,
   content,
   multiline,
-  includeMarks,
+  disableMarks,
   disableEdit,
   hashtagSuggestionList
 }) {
-  const schema = hashtagSchema(multiline, includeMarks)
+  const schema = hashtagSchema(multiline, disableMarks)
 
   const plugins = [hashtagPlugin]
 
@@ -113,7 +113,7 @@ function useHashtagProseState({
     onChange,
     content,
     multiline,
-    includeMarks,
+    disableMarks,
     disableEdit,
     plugins
   })
@@ -217,7 +217,8 @@ function useHashtagProseState({
       const tr = editorState.tr
       tr.setSelection(hashtagSelection)
 
-      return setEditorState(editorState.apply(tr))
+      setEditorState(editorState.apply(tr))
+      return
     }
 
     // TODO: find another solution - perhaps - confirming there is a whitespace after the end of the hashtag and only then moving the cursor after the whitespace.
@@ -234,9 +235,9 @@ function useHashtagProseState({
 
       const tr = editorState.tr
       tr.setSelection(newSelection)
-      return setEditorState(editorState.apply(tr))
+      setEditorState(editorState.apply(tr))
     }
-  }, [editorState])
+  }, [editorState, setEditorState])
 
   return [
     editorState,
@@ -247,7 +248,7 @@ function useHashtagProseState({
 }
 
 // create the schema specs for an editor with hashtags.
-function hashtagSchema(multiline, includeMarks) {
+function hashtagSchema(multiline, disableMarks) {
   const schema = new Schema({
     nodes: schemaBasic.spec.nodes
       .addBefore('text', HASHTAG_SCHEMA_NODE_TYPE, {
@@ -264,7 +265,7 @@ function hashtagSchema(multiline, includeMarks) {
         'doc',
         multiline ? schemaBasic.spec.nodes.get('doc') : { content: 'block' }
       ),
-    marks: includeMarks ? schemaBasic.spec.marks : undefined
+    marks: disableMarks ? schemaBasic.spec.marks : undefined
   })
   return schema
 }

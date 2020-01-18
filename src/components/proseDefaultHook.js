@@ -1,7 +1,7 @@
-import React, {
+import React /* eslint-disable-line no-unused-vars */, {
   useState,
   useLayoutEffect
-} from 'react' /* eslint-disable-line no-unused-vars */
+} from 'react'
 import { Plugin } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
@@ -11,8 +11,8 @@ function useDefaultProseState({
   onChange,
   content,
   multiline,
-  includeMarks,
-  schema = defaultSchema(multiline, includeMarks),
+  disableMarks,
+  schema = defaultSchema(multiline, disableMarks),
   disableEdit,
   plugins = []
 }) {
@@ -50,13 +50,13 @@ function useDefaultProseState({
   return [editorState, setEditorState]
 }
 
-function defaultSchema(multiline, includeMarks) {
+function defaultSchema(multiline, disableMarks) {
   return new Schema({
     nodes: schemaBasic.spec.nodes.update(
       'doc',
       multiline ? schemaBasic.spec.nodes.get('doc') : { content: 'block' }
     ),
-    marks: includeMarks ? schemaBasic.spec.marks : undefined
+    marks: disableMarks ? undefined : schemaBasic.spec.marks
   })
 }
 

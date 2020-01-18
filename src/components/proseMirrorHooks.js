@@ -5,11 +5,7 @@ import { EditorView } from 'prosemirror-view'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import './richTextEditor.css'
 
-function useProseState(
-  schema = schemaBasic,
-  additionalPlugins = [],
-  content
-) {
+function useProseState(schema = schemaBasic, additionalPlugins = [], content) {
   const contentNode =
     (content && schema.nodeFromJSON(content)) ||
     schema.node('doc', null, schema.node('paragraph', null))
@@ -67,7 +63,7 @@ function useProseView({ editorState, autoFocus }) {
 
   useLayoutEffect(() => {
     if (view && autoFocus) view.focus()
-  }, [view])
+  }, [view, autoFocus])
 
   return dom
 }

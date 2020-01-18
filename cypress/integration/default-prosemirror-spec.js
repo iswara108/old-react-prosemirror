@@ -2,12 +2,6 @@ beforeEach(() => {
   cy.visit('/')
 })
 
-it.skip('enters simple text with delay', () => {
-  cy.get('#prosemirror')
-    .type('hello world', { delay: 400 })
-    .should('contain', 'hello world')
-})
-
 it('enters simple text without delay', () => {
   cy.get('#prosemirror')
     .type('hello world')
@@ -29,7 +23,7 @@ it('enters simple text with second word bolded', () => {
 context('partial marks', () => {
   const testPartialSelectionMarks = (first, second) => {
     const NORMAL_WEIGHT = '400'
-    const BOLD_WEIGHT ='700'
+    const BOLD_WEIGHT = '700'
     cy.get('#prosemirror')
       .setSelection(first)
       .type('{ctrl}b')

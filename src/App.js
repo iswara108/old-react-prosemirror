@@ -3,13 +3,10 @@ import React, { useState, useEffect } from 'react'
 import ReactProseMirror from './components/ReactProseMirror'
 
 function App() {
-  const [
-    hashtagImmutableListFixture,
-    setHashtagImmutableListFixture
-  ] = useState()
+  const [hashtagListFixture, setHashtagListFixture] = useState()
 
   useEffect(() => {
-    setHashtagImmutableListFixture(window.hashtagImmutableListFixture)
+    setHashtagListFixture(window.hashtagListFixture)
   }, [])
   return (
     <>
@@ -18,19 +15,23 @@ function App() {
         label="description"
         content={undefined}
         onChange={doc => console.info(doc.toString())}
+        multiline
       />
-      {hashtagImmutableListFixture && (
+      {hashtagListFixture && (
         <ReactProseMirror
           id="prosemirror-hashtag-immutables"
           label="Hastag Prosemirror"
-          hashtags={hashtagImmutableListFixture}
-          multiline={false}
+          hashtagSuggestionList={hashtagListFixture}
+          hashtags="immutable"
+          multiline
         />
       )}
       <ReactProseMirror
-        id="prosemirror-hashtag-all"
+        id="prosemirror-hashtag-mutables"
         label="Hastag Prosemirror"
-        hashtags="all"
+        hashtagSuggestionList={hashtagListFixture}
+        hashtags="mutable"
+        multiline
       />
     </>
   )

@@ -1,7 +1,6 @@
 import { useDebouncedCallback } from 'use-debounce'
 import React from 'react'
 import MenuItem from '@material-ui/core/MenuItem'
-import { makeStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types'
 
 function Suggestion({

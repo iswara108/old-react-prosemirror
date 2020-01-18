@@ -7,8 +7,8 @@ export default props => {
     id,
     content,
     onChange,
-    multiline = true,
-    includeMarks = true,
+    multiline = false,
+    disableMarks = false,
     autoFocus = false,
     disableEdit = false
   } = props
@@ -17,7 +17,7 @@ export default props => {
     onChange,
     content,
     multiline,
-    includeMarks,
+    disableMarks,
     disableEdit
   })
 

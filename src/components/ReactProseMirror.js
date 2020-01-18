@@ -4,17 +4,16 @@ import ProseHashtagView from './ProseHashtagView'
 import ProseDefaultView from './ProseDefaultView'
 
 export default props => {
-  if (!props.hashtags) {
+  const { hashtags, hashtagSuggestionList = [] } = props
+
+  if (!hashtags) {
     return <ProseDefaultView {...props} />
-  } else if (Array.isArray(props.hashtags)) {
+  } else {
     return (
       <ProseHashtagView
         {...props}
-        hashtags={undefined}
-        hashtagSuggestionList={props.hashtags}
+        hashtagSuggestionList={hashtagSuggestionList}
       />
     )
-  } else {
-    return <ProseHashtagView {...props} />
   }
 }
