@@ -5,17 +5,42 @@ import ReactProseMirror from './components/ReactProseMirror'
 function App() {
   const [hashtagListFixture, setHashtagListFixture] = useState()
   const [hashtagListDynamic, setHashtagListDynamic] = useState([])
+  const [content, setContent] = useState({
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'hello, '
+          },
+          {
+            type: 'text',
+            marks: [
+              {
+                type: 'strong'
+              }
+            ],
+            text: 'world'
+          }
+        ]
+      }
+    ]
+  })
 
   useEffect(() => {
     setHashtagListFixture(window.hashtagListFixture)
   }, [])
+
+  useEffect(() => {
+    console.info(JSON.stringify(content, undefined, 2))
+  }, [content])
   return (
     <>
       <ReactProseMirror
         id="prosemirror-multiline"
         label="description"
-        content={undefined}
-        onChange={doc => console.info(doc.toString())}
         multiline
       />
       <ReactProseMirror id="prosemirror-singleline" label="description" />
@@ -37,6 +62,17 @@ function App() {
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
+      />
+      <ReactProseMirror
+        id="prosemirror-content1"
+        content={content}
+        onChange={newContent => setContent(newContent)}
+        multiline
+      />
+      <ReactProseMirror
+        id="prosemirror-content2"
+        content={content}
+        onChange={newContent => setContent(newContent)}
       />
     </>
   )
