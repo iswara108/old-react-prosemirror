@@ -32,7 +32,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "test-cypress": "cypress open",
-    "test-cypress-run": "cypress run"
+    "test-cypress-run": "cypress run --config video=false"
   },
   "browserslist": [
     ">0.2%",
