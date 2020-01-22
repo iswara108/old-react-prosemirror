@@ -1,7 +1,8 @@
 import React from 'react'
 import ProseView from './ProseView'
 import SelectHashtags from './SelectHashtags'
-import useHashtagProseState, * as actionTypes from './hashtagHook'
+import useHashtagProseState from './hashtagHook'
+import * as actionTypes from './hashtagSuggestionsRecuder'
 
 export default props => {
   const {
