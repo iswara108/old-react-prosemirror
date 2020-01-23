@@ -51,6 +51,9 @@ function App() {
           hashtagSuggestionList={hashtagListFixture}
           hashtags="immutable"
           multiline
+          onNewHashtag={hashtag =>
+            setHashtagListFixture([...hashtagListFixture, hashtag])
+          }
         />
       )}
       <ReactProseMirror

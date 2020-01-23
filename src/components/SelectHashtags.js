@@ -32,7 +32,7 @@ export default ({
   const selectedItem = undefined
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root + ' select-hashtags'}>
       <div className={classes.container}>
         <div>
           <Paper className={classes.paper} square>
