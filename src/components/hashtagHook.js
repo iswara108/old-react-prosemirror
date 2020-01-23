@@ -31,8 +31,6 @@ function useHashtagProseState({
 }) {
   const schema = hashtagSchema(multiline, disableMarks)
 
-  const plugins = [hashtagPlugin]
-
   // call main proseEditor hook to manage editorState
   const [editorState, setEditorState] = useDefaultProseState({
     schema,
@@ -41,21 +39,22 @@ function useHashtagProseState({
     multiline,
     disableMarks,
     disableEdit,
-    plugins
+    plugins: [hashtagPlugin]
   })
 
   // hashtagUnderConstruction is the text beginning with # while the cursor is on it.
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
 
   // suggestionsState is the state management of the displaying of hashtag options and their manipulation
-  // (highlighting and selecting a hashtag).
+  // (highlighting and selecting a hashtag to resolve to).
   const [suggestionsState, dispatchSuggestionsChange] = useReducer(
+    // Use "bind" to insert two arguments before the standard "state, action" arguments of React.useReducer
     suggestionsStateReducer.bind(
       null,
       hashtagUnderConstruction,
       hashtagSuggestionList
     ),
-    {}
+    {} // initial state empty
   )
 
   // Whenever the state changes - color all the hashtags
