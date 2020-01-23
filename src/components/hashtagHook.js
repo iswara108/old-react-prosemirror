@@ -77,7 +77,7 @@ function useHashtagProseState({
 
   // Insert the selected hashtag as a resolved hashtag.
   // When "selectedIndex" is passed as -1, it implies creating a new hashtag out of the one under construction.
-  const insertHashtag = selectedIndex => {
+  const resolveHashtag = selectedIndex => {
     if (isNaN(selectedIndex)) selectedIndex = suggestionsState.highlightIndex
 
     // resolve the new hashtag text - either from the selected suggestion or from the hashtag under construction.
@@ -99,6 +99,7 @@ function useHashtagProseState({
       storedMarks: editorState.storedMarks
     })
 
+    // initialize a transaction
     const transaction = interimState.tr
 
     // insert the resolved hashtag node instead of the hashtag under construction.
@@ -168,7 +169,7 @@ function useHashtagProseState({
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
-    insertHashtag
+    resolveHashtag
   ]
 }
 

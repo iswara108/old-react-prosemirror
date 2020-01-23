@@ -26,7 +26,7 @@ export default props => {
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
-    insertHashtag
+    resolveHashtag
   ] = useHashtagProseState({
     focusViewHook,
     onChange,
@@ -53,7 +53,7 @@ export default props => {
         break
       case 'Enter':
         dispatchSuggestionsChange({ type: actionTypes.CLOSE_HASHTAG_OPTIONS })
-        insertHashtag()
+        resolveHashtag()
         e.preventDefault()
         break
       default:
@@ -82,7 +82,7 @@ export default props => {
             dispatchSuggestionsChange({
               type: actionTypes.CLOSE_HASHTAG_OPTIONS
             })
-            insertHashtag(index)
+            resolveHashtag(index)
           }}
           suggestionList={suggestionsState.suggestionList}
         />
