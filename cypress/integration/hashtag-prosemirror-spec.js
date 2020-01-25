@@ -11,7 +11,10 @@ describe('hashtags', () => {
     describe('mutable hashtags dynamically created', () => {
       const testColorDifference = (text, hashtags, description) => {
         it('color difference ' + description, () => {
-          cy.get('#prosemirror-hashtag-mutables').type(text)
+          cy.get('#prosemirror-hashtag-mutables')
+            .type(text)
+            .invoke('text')
+            .should('equal', text)
 
           hashtags.forEach(hashtag => {
             cy.contains(hashtag).should('have.class', 'hashtag')
@@ -110,47 +113,66 @@ describe('hashtags', () => {
       })
     })
 
-    describe('selects whole resolved hashtag', () => {
-      it('highlights simple resolved hashtag', () => {
-        cy.get('#prosemirror-hashtag-immutables')
-          .type('Go to #off{enter}{leftArrow}')
-          .then($reactPM => {
-            console.info($reactPM)
-          })
-      })
-    })
-
-    describe('selection ranges', () => {
-      it('highlights simple resolved hashtag', () => {
-        cy.get('#prosemirror-hashtag-immutables').type(
-          'Go to #off{enter}{leftArrow}'
-        )
-        cy.window()
+    describe('selection on immutable hashtags', () => {
+      const expectSelectionToEqual = value =>
+        cy
+          .window()
           .invoke('getSelection')
           .invoke('toString')
-          .should('equal', '#office')
-      })
+          .should('equal', value)
 
-      it('walk around a resolved hashtag', () => {
-        cy.get('#prosemirror-hashtag-immutables').type(
-          'Go to #off{enter}{leftArrow}{leftArrow}'
-        )
-        cy.window()
-          .invoke('getSelection')
-          .invoke('toString')
-          .should('be.empty')
+      describe('cursor selection', () => {
+        it('click "leftArrow" when cursor is after hashtag', () => {
+          cy.get('#prosemirror-hashtag-immutables').type(
+            'Go to #off{enter}{leftArrow}'
+          )
+          expectSelectionToEqual('#office')
+        })
 
-        cy.get('#prosemirror-hashtag-immutables').type('{rightArrow}')
-        cy.window()
-          .invoke('getSelection')
-          .invoke('toString')
-          .should('equal', '#office')
+        it.skip('click multiple "leftArrow"s when hashtag in the beginning', () => {
+          cy.get('#prosemirror-hashtag-immutables').type(
+            '#reading{enter} something{home}{leftArrow}{leftArrow}{leftArrow}'
+          )
+          expectSelectionToEqual('')
 
-        cy.get('#prosemirror-hashtag-immutables').type('{rightArrow}')
-        cy.window()
-          .invoke('getSelection')
-          .invoke('toString')
-          .should('be.empty')
+          cy.get('#prosemirror-hashtag-immutables')
+            .type('think of ')
+            .invoke('text')
+            .should(equal('think of #reading something'))
+
+          cy.contains('#reading').should('have.class', 'hashtag')
+          cy.contains('think of ').should('not.have.class', 'hashtag')
+        })
+
+        it('walk around a resolved hashtag', () => {
+          cy.get('#prosemirror-hashtag-immutables').type(
+            'Go to #off{enter}{leftArrow}{leftArrow}'
+          )
+          expectSelectionToEqual('')
+
+          cy.get('#prosemirror-hashtag-immutables').type('{rightArrow}')
+          expectSelectionToEqual('#office')
+
+          cy.get('#prosemirror-hashtag-immutables').type('{rightArrow}')
+          expectSelectionToEqual('')
+        })
+
+        it.skip('walk around a resolved hashtag - challenge end of line', () => {
+          cy.get('#prosemirror-hashtag-immutables').type(
+            'Go to #off{enter}{backspace}{leftArrow}{leftArrow}{leftArrow}{rightArrow}{rightArrow}{rightArrow}{rightArrow}'
+          )
+          expectSelectionToEqual('')
+
+          cy.get('#prosemirror-hashtag-immutables')
+            .type('a')
+            .invoke('text')
+            .should('equal', 'go to #office a')
+
+          // Test that the hashtag has not changed
+          cy.contains('#office')
+            .invoke('text')
+            .should('equal', '#office')
+        })
       })
 
       it('selects complete hashtag upon partial hashtag selection', () => {
@@ -161,18 +183,15 @@ describe('hashtags', () => {
           cy.window().then(win => {
             const paragraph = $div.get(0)
 
+            // In the text "Go to #office", try to select only: "o #of"
             const range = document.createRange()
             range.setStart(paragraph.childNodes[0], 4)
             range.setEnd(paragraph.childNodes[1].firstChild, 2)
             win.getSelection().empty()
             win.getSelection().addRange(range)
-            // expect()
-            // win.getSelection().deleteFromDocument()
           })
-          cy.window()
-            .invoke('getSelection')
-            .invoke('toString')
-            .should('equal', '#office')
+          // And confirm that the selection contains the whole immutable hashtag
+          expectSelectionToEqual('#office')
         })
       })
     })
