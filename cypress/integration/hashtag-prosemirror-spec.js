@@ -157,7 +157,24 @@ describe('hashtags', () => {
           expectSelectionToEqual('')
         })
 
-        it.skip('walk around a resolved hashtag - challenge end of line', () => {
+        it('walk around a resolved hashtag - challenge end of hashtag - simple', () => {
+          cy.get('#prosemirror-hashtag-immutables').type(
+            'Go to #off{enter}{leftArrow}{rightArrow}'
+          )
+          expectSelectionToEqual('')
+
+          cy.get('#prosemirror-hashtag-immutables')
+            .type('a')
+            .invoke('text')
+            .should('equal', 'Go to #office a')
+
+          // Test that the hashtag has not changed
+          cy.contains('#office')
+            .invoke('text')
+            .should('equal', '#office')
+        })
+
+        it.skip('walk around a resolved hashtag - challenge end of hashtag - more right and left keys', () => {
           cy.get('#prosemirror-hashtag-immutables').type(
             'Go to #off{enter}{backspace}{leftArrow}{leftArrow}{leftArrow}{rightArrow}{rightArrow}{rightArrow}{rightArrow}'
           )
@@ -166,7 +183,7 @@ describe('hashtags', () => {
           cy.get('#prosemirror-hashtag-immutables')
             .type('a')
             .invoke('text')
-            .should('equal', 'go to #office a')
+            .should('equal', 'Go to #office a')
 
           // Test that the hashtag has not changed
           cy.contains('#office')

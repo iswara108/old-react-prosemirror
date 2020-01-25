@@ -146,7 +146,6 @@ function useHashtagProseState({
 
       const transaction = editorState.tr
       transaction.setSelection(hashtagSelection)
-
       setEditorState(editorState.apply(transaction))
     }
   }, [editorState, setEditorState])
