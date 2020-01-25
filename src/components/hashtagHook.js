@@ -1,7 +1,8 @@
 import React /* eslint-disable-line no-unused-vars */, {
   useReducer,
   useState,
-  useEffect
+  useEffect,
+  useLayoutEffect
 } from 'react'
 
 import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
@@ -126,26 +127,32 @@ function useHashtagProseState({
 
   // whenever the state changes -
   // update selection to encopass the resolved hashtag in its entirety, in case the selection or cursor are touching it.
-  useEffect(() => {
-    // TODO: refactor - isolate $cursor from either $cursor or $head of the selection. In case the selection is before the hashtag in the beginning of the paragraph - ensure it is inserted as text node.
+  useLayoutEffect(() => {
     if (!editorState) return
 
-    const $cursor = editorState.selection.$cursor || editorState.selection.$head
-    if (
-      editorState.selection.$cursor &&
-      editorState.selection.$cursor.node(editorState.selection.$cursor.depth)
-        .type.name === HASHTAG_SCHEMA_NODE_TYPE
-    ) {
+    const selectionEndAsHashtag = [
+      (editorState.selection.$anchor, editorState.selection.$head)
+    ].find(
+      selectionEnd =>
+        selectionEnd.node(selectionEnd.depth).type.name ===
+        HASHTAG_SCHEMA_NODE_TYPE
+    )
+
+    if (selectionEndAsHashtag) {
       const hashtagSelection = NodeSelection.create(
         editorState.doc,
-        $cursor.before($cursor.depth)
+        selectionEndAsHashtag.before(selectionEndAsHashtag.depth)
       )
-      const tr = editorState.tr
-      tr.setSelection(hashtagSelection)
 
-      setEditorState(editorState.apply(tr))
-      return
+      const transaction = editorState.tr
+      transaction.setSelection(hashtagSelection)
+
+      setEditorState(editorState.apply(transaction))
     }
+  }, [editorState, setEditorState])
+
+  useLayoutEffect(() => {
+    if (!editorState) return
 
     // TODO: find another solution - perhaps - confirming there is a whitespace after the end of the hashtag and only then moving the cursor after the whitespace.
     if (
@@ -159,9 +166,9 @@ function useHashtagProseState({
         editorState.selection.$cursor.pos + 1
       )
 
-      const tr = editorState.tr
-      tr.setSelection(newSelection)
-      setEditorState(editorState.apply(tr))
+      const transaction = editorState.tr
+      transaction.setSelection(newSelection)
+      setEditorState(editorState.apply(transaction))
     }
   }, [editorState, setEditorState])
 
