@@ -23,7 +23,7 @@
     "xregexp": "^4.2.4"
   },
   "devDependencies": {
-    "cypress": "^3.8.0",
+    "cypress": "^3.8.3",
     "typescript": "3.7.3"
   },
   "scripts": {
