@@ -8,7 +8,7 @@ export default props => {
 
   useEffect(() => {
     if (props.setEditorView) props.setEditorView(editorView)
-  }, [editorView])
+  }, [editorView, props])
 
   const propsToDiv = { ...props }
   delete propsToDiv.editorState

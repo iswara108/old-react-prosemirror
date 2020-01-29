@@ -1,6 +1,10 @@
 import { Decoration, DecorationSet } from 'prosemirror-view'
-import { Plugin } from 'prosemirror-state'
-import { findAllHashtags, findHashtagUnderCursor, HASHTAG_SCHEMA_NODE_TYPE } from './hashtagUtils'
+import { Plugin, PluginKey } from 'prosemirror-state'
+import {
+  findAllHashtags,
+  findHashtagUnderCursor,
+  HASHTAG_SCHEMA_NODE_TYPE
+} from './hashtagUtils'
 import './hashtag.css'
 
 function decorateHashtags(doc, selection) {
@@ -17,6 +21,7 @@ function decorateHashtags(doc, selection) {
 }
 
 const hashtagPlugin = new Plugin({
+  key: new PluginKey('Hashtag Plugin'),
   state: {
     init(_, instance) {
       return decorateHashtags(instance.doc, instance.selection)
@@ -43,23 +48,32 @@ const hashtagPlugin = new Plugin({
         }
       }
     }
-  }, filterTransaction(transaction, editorState) {
+  },
+  filterTransaction(transaction, editorState) {
     let changeInHastag = false
-    const editorHashtags = [], transactionHashtags = []
-    editorState.doc.descendants((node, pos ) => {
-      if (node.type.name === HASHTAG_SCHEMA_NODE_TYPE) editorHashtags.push({ node, pos })
+    const editorHashtags = [],
+      transactionHashtags = []
+    editorState.doc.descendants((node, pos) => {
+      if (node.type.name === HASHTAG_SCHEMA_NODE_TYPE)
+        editorHashtags.push({ node, pos })
     })
-    transaction.doc.descendants((node, pos ) => {
-      if (node.type.name === HASHTAG_SCHEMA_NODE_TYPE) transactionHashtags.push({ node, pos })
+    transaction.doc.descendants((node, pos) => {
+      if (node.type.name === HASHTAG_SCHEMA_NODE_TYPE)
+        transactionHashtags.push({ node, pos })
     })
 
     transactionHashtags.forEach(transHashtag => {
-      const correspondingHashtag = editorHashtags.find(editorHashtag => editorHashtag.pos === transaction.mapping.invert().map(transHashtag.pos))
+      const correspondingHashtag = editorHashtags.find(
+        editorHashtag =>
+          editorHashtag.pos ===
+          transaction.mapping.invert().map(transHashtag.pos)
+      )
       if (correspondingHashtag) {
-        if (!transHashtag.node.eq(correspondingHashtag.node)) changeInHastag = true
+        if (!transHashtag.node.eq(correspondingHashtag.node))
+          changeInHastag = true
       }
     })
-    console.info("trans", transactionHashtags.map(h => h.toString()), "editor", editorHashtags.map(h => h.toString()))
+
     return !changeInHastag
   }
 })

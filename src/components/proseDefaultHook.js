@@ -2,7 +2,7 @@ import React /* eslint-disable-line no-unused-vars */, {
   useState,
   useLayoutEffect
 } from 'react'
-import { Plugin } from 'prosemirror-state'
+import { Plugin, PluginKey } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import { useProseState } from './proseMirrorHooks'
@@ -19,6 +19,7 @@ function useDefaultProseState({
   if (disableEdit) {
     plugins.unshift(
       new Plugin({
+        key: new PluginKey('Read Only Plugin'),
         filterTransaction: transaction => !transaction.docChanged
       })
     )

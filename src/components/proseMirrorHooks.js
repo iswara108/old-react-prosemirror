@@ -1,40 +1,50 @@
 import { useState, useLayoutEffect, useRef } from 'react'
-import { EditorState, Plugin, Selection } from 'prosemirror-state'
+import { EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { EditorView } from 'prosemirror-view'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import './richTextEditor.css'
 
 function useProseState(schema = schemaBasic, additionalPlugins = [], content) {
-  const contentNode =
-    (content && schema.nodeFromJSON(content)) ||
-    schema.node('doc', null, schema.node('paragraph', null))
-
   const [editorState, setEditorState] = useState()
+
+  const syncStatePlugin = new Plugin({
+    key: new PluginKey('Sync State Plugin'),
+    view: () => ({
+      update: view => setEditorState(view.state)
+    })
+  })
+
+  const plugins = [
+    ...exampleSetup({ schema, menuBar: false }),
+    syncStatePlugin,
+    ...additionalPlugins
+  ]
 
   // Called whenever changed from the parent
   useLayoutEffect(() => {
-    if (editorState && editorState.doc.toString() === contentNode.toString())
+    if (
+      editorState &&
+      content &&
+      editorState.doc.eq(content.doc) &&
+      editorState.selection.eq(content.selection)
+    )
       return
+    // editorState.doc.toString() === contentNode.toString())
+    // return
 
-    const syncStatePlugin = new Plugin({
-      view: () => ({
-        update: view => setEditorState(view.state)
-      })
-    })
+    const contentNode =
+      (content && schema.nodeFromJSON(content)) ||
+      schema.node('doc', null, schema.node('paragraph', null))
 
     setEditorState(
       EditorState.create({
         doc: contentNode,
         selection: Selection.atEnd(contentNode),
-        plugins: [
-          ...exampleSetup({ schema, menuBar: false }),
-          syncStatePlugin,
-          ...additionalPlugins
-        ]
+        plugins
       })
     )
-  }, [contentNode && contentNode.toString()])
+  }, [content, setEditorState])
   return editorState
 }
 
