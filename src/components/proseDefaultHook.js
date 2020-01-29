@@ -44,7 +44,7 @@ function useDefaultProseState({
   useLayoutEffect(() => {
     if (!editorState) return
 
-    if (onChange) onChange(editorState.doc.toJSON())
+    if (onChange) onChange(editorState.toJSON())
   }, [editorState])
 
   return [editorState, setEditorState]
