@@ -41,31 +41,31 @@ function useProseState(schema = schemaBasic, additionalPlugins = [], content) {
 function useProseView({ editorState, autoFocus }) {
   const dom = useRef(document.createElement('div'))
 
-  const [view, setView] = useState(null)
+  const [editorView, setEditorView] = useState(null)
 
   useLayoutEffect(() => {
-    if (editorState && !view) {
-      setView(
+    if (editorState && !editorView) {
+      setEditorView(
         new EditorView(dom.current, {
           state: editorState
         })
       )
     }
-  }, [editorState, view])
+  }, [editorState, editorView])
 
   useLayoutEffect(() => {
-    if (view && editorState) {
-      if (view.state !== editorState) {
-        view.updateState(editorState)
+    if (editorView && editorState) {
+      if (editorView.state !== editorState) {
+        editorView.updateState(editorState)
       }
     }
   }, [editorState])
 
   useLayoutEffect(() => {
-    if (view && autoFocus) view.focus()
-  }, [view, autoFocus])
+    if (editorView && autoFocus) editorView.focus()
+  }, [editorView, autoFocus])
 
-  return dom
+  return { dom, editorView }
 }
 
 export { useProseState, useProseView }

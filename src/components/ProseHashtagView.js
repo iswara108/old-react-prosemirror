@@ -15,7 +15,8 @@ export default props => {
     disableEdit = false,
     hashtagSuggestionList = [],
     onNewHashtag,
-    hashtags: hashtagsType
+    hashtags: hashtagsType,
+    setEditorView
   } = props
 
   // TODO: Refactor to useRef
@@ -67,6 +68,7 @@ export default props => {
         editorState={editorState}
         onKeyDown={handleKeyDown}
         autoFocus={autoFocus}
+        setEditorView={setEditorView}
       />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
         <SelectHashtags
