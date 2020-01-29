@@ -65,17 +65,7 @@ function App() {
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
-      />
-      <ReactProseMirror
-        id="prosemirror-content1"
-        content={content}
-        onChange={newContent => setContent(newContent)}
-        multiline
-      />
-      <ReactProseMirror
-        id="prosemirror-content2"
-        content={content}
-        onChange={newContent => setContent(newContent)}
+        onChange={newContent => (window.state = newContent)}
       />
     </>
   )
