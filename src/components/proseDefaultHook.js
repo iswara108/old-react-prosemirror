@@ -2,10 +2,10 @@ import React /* eslint-disable-line no-unused-vars */, {
   useState,
   useLayoutEffect
 } from 'react'
-import { Plugin, PluginKey } from 'prosemirror-state'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
-import { useProseState } from './proseMirrorHooks'
+import { EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state'
+import { exampleSetup } from 'prosemirror-example-setup'
 
 function useDefaultProseState({
   onChange,
@@ -14,10 +14,10 @@ function useDefaultProseState({
   disableMarks,
   schema = defaultSchema(multiline, disableMarks),
   disableEdit,
-  plugins = []
+  plugins: additionalPlugins = []
 }) {
   if (disableEdit) {
-    plugins.unshift(
+    additionalPlugins.unshift(
       new Plugin({
         key: new PluginKey('Read Only Plugin'),
         filterTransaction: transaction => !transaction.docChanged
@@ -25,22 +25,43 @@ function useDefaultProseState({
     )
   }
 
-  const rawEditorState = useProseState(schema, plugins, content)
-  const [editorState, setEditorState] = useState()
+  const syncStatePlugin = new Plugin({
+    key: new PluginKey('Sync State Plugin'),
+    view: () => ({
+      update: view => setEditorState(view.state)
+    })
+  })
 
-  // Whenever the document changed due to user input
+  const plugins = [
+    ...exampleSetup({ schema, menuBar: false }),
+    syncStatePlugin,
+    ...additionalPlugins
+  ]
+
+  // Called whenever changed from the parent
   useLayoutEffect(() => {
-    if (!rawEditorState) return // first time before rawEditorState is initialized
-    if (!editorState) return setEditorState(rawEditorState) // first time initialize editorState
-
-    // if either the selection or content changed - update editorState
     if (
-      !editorState.doc.eq(rawEditorState.doc) ||
-      !editorState.selection.eq(rawEditorState.selection)
-    ) {
-      setEditorState(rawEditorState)
-    }
-  }, [rawEditorState])
+      editorState &&
+      content &&
+      editorState.doc.eq(content.doc) &&
+      editorState.selection.eq(content.selection)
+    )
+      return
+
+    const contentNode =
+      (content && schema.nodeFromJSON(content)) ||
+      schema.node('doc', null, schema.node('paragraph', null))
+
+    setEditorState(
+      EditorState.create({
+        doc: contentNode,
+        selection: Selection.atEnd(contentNode),
+        plugins
+      })
+    )
+  }, [content, setEditorState])
+
+  const [editorState, setEditorState] = useState()
 
   useLayoutEffect(() => {
     if (!editorState) return
