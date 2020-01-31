@@ -1,21 +1,23 @@
 import React /* eslint-disable-line no-unused-vars */, {
   useState,
-  useLayoutEffect
+  useLayoutEffect,
+  useEffect
 } from 'react'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
-import { EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state'
+import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 
 function useDefaultProseState({
   onChange,
-  content,
+  initialContent,
   multiline,
   disableMarks,
   schema = defaultSchema(multiline, disableMarks),
   disableEdit,
   plugins: additionalPlugins = []
 }) {
+  const [editorState, setEditorState] = useState()
   if (disableEdit) {
     additionalPlugins.unshift(
       new Plugin({
@@ -38,36 +40,20 @@ function useDefaultProseState({
     ...additionalPlugins
   ]
 
-  // Called whenever changed from the parent
-  useLayoutEffect(() => {
-    if (
-      editorState &&
-      content &&
-      editorState.doc.eq(content.doc) &&
-      editorState.selection.eq(content.selection)
-    )
-      return
-
-    const contentNode =
-      (content && schema.nodeFromJSON(content)) ||
-      schema.node('doc', null, schema.node('paragraph', null))
-
+  useEffect(() => {
     setEditorState(
       EditorState.create({
-        doc: contentNode,
-        selection: Selection.atEnd(contentNode),
+        doc: initialContent
+          ? schema.nodeFromJSON(initialContent)
+          : schema.node('doc', null, schema.node('paragraph', null)),
         plugins
       })
     )
-  }, [content, setEditorState])
-
-  const [editorState, setEditorState] = useState()
+  }, [setEditorState])
 
   useLayoutEffect(() => {
-    if (!editorState) return
-
-    if (onChange) onChange(editorState.toJSON())
-  }, [editorState])
+    if (editorState && onChange) onChange(editorState)
+  }, [editorState, onChange])
 
   return [editorState, setEditorState]
 }

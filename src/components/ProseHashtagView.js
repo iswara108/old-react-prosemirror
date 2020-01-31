@@ -9,7 +9,7 @@ export default props => {
     multiline = false,
     onChange,
     id,
-    content,
+    initialContent,
     disableMarks = false,
     autoFocus,
     disableEdit = false,
@@ -31,7 +31,7 @@ export default props => {
   ] = useHashtagProseState({
     focusViewHook,
     onChange,
-    content,
+    initialContent,
     multiline,
     disableMarks,
     disableEdit,

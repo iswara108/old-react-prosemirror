@@ -22,7 +22,7 @@ import {
 function useHashtagProseState({
   focusViewHook,
   onChange,
-  content,
+  initialContent,
   multiline,
   disableMarks,
   disableEdit,
@@ -36,7 +36,7 @@ function useHashtagProseState({
   const [editorState, setEditorState] = useDefaultProseState({
     schema,
     onChange,
-    content,
+    initialContent,
     multiline,
     disableMarks,
     disableEdit,

@@ -8,7 +8,30 @@ function App() {
   const [hashtagListDynamic, setHashtagListDynamic] = useState([])
   const [devtools, setDevtools] = useState(false)
   const [editorView, setEditorView] = useState()
-  const [content, setContent] = useState()
+
+  const [content, setContent] = useState({
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: 'hello, '
+          },
+          {
+            type: 'text',
+            marks: [
+              {
+                type: 'strong'
+              }
+            ],
+            text: 'world'
+          }
+        ]
+      }
+    ]
+  })
 
   useEffect(() => {
     setHashtagListFixture(window.hashtagListFixture)
@@ -55,7 +78,6 @@ function App() {
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
         onChange={newContent => setContent(newContent)}
-        // content={content}
         setEditorView={setEditorView}
       />
     </>

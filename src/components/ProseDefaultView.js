@@ -5,7 +5,7 @@ import useDefaultProseState from './proseDefaultHook'
 export default props => {
   const {
     id,
-    content,
+    initialContent,
     onChange,
     multiline = false,
     disableMarks = false,
@@ -15,7 +15,7 @@ export default props => {
 
   const [editorState] = useDefaultProseState({
     onChange,
-    content,
+    initialContent,
     multiline,
     disableMarks,
     disableEdit
