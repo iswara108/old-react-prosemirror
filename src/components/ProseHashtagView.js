@@ -7,7 +7,8 @@ import * as actionTypes from './hashtagSuggestionsRecuder'
 export default props => {
   const {
     multiline = false,
-    onChange,
+    parentControlledState,
+    onStateChange,
     id,
     initialContent,
     disableMarks = false,
@@ -30,7 +31,8 @@ export default props => {
     resolveHashtag
   ] = useHashtagProseState({
     focusViewHook,
-    onChange,
+    parentControlledState,
+    onStateChange,
     initialContent,
     multiline,
     disableMarks,

@@ -6,15 +6,17 @@ export default props => {
   const {
     id,
     initialContent,
-    onChange,
+    editorState: parentControlledState,
+    onStateChange,
     multiline = false,
     disableMarks = false,
     autoFocus = false,
     disableEdit = false
   } = props
 
-  const [editorState] = useDefaultProseState({
-    onChange,
+  const [innerEditorState] = useDefaultProseState({
+    parentControlledState,
+    onStateChange,
     initialContent,
     multiline,
     disableMarks,
@@ -23,7 +25,7 @@ export default props => {
 
   return (
     <>
-      <ProseView id={id} editorState={editorState} autoFocus={autoFocus} />
+      <ProseView id={id} editorState={innerEditorState} autoFocus={autoFocus} />
     </>
   )
 }

@@ -9,7 +9,8 @@ import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 
 function useDefaultProseState({
-  onChange,
+  parentControlledState,
+  onStateChange,
   initialContent,
   multiline,
   disableMarks,
@@ -39,11 +40,7 @@ function useDefaultProseState({
     ...additionalPlugins
   ]
 
-  const [editorState, dispatch] = useReducer(reducer)
-  const setEditorState = newState =>
-    dispatch({ type: 'setNewState', payload: newState })
-
-  function reducer(state, action) {
+  const reducer = (state, action) => {
     switch (action.type) {
       case 'initState':
         return EditorState.create({
@@ -52,20 +49,36 @@ function useDefaultProseState({
             : schema.node('doc', null, schema.node('paragraph', null)),
           plugins
         })
+
       case 'setNewState':
-        return action.payload
+        return EditorState.fromJSON(
+          { schema, plugins },
+          action.payload.toJSON()
+        )
       default:
         throw new Error(`action type ${action.type} isn't recognized.`)
     }
   }
 
+  const [editorState, dispatch] = useReducer(reducer)
+  const setEditorState = newState =>
+    dispatch({ type: 'setNewState', payload: newState })
+
+  // initialize editorState
   useEffect(() => {
     dispatch({ type: 'initState' })
   }, [])
 
+  // update parent component whenever editorState changes
   useLayoutEffect(() => {
-    if (editorState && onChange) onChange(editorState)
-  }, [editorState, onChange])
+    if (editorState && onStateChange) onStateChange(editorState)
+  }, [editorState, onStateChange])
+
+  // update inner state whenever parent state changed
+  useLayoutEffect(() => {
+    if (parentControlledState)
+      dispatch({ type: 'setNewState', payload: parentControlledState })
+  }, [parentControlledState])
 
   return [editorState, setEditorState]
 }

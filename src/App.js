@@ -77,8 +77,6 @@ function App() {
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
-        onChange={newContent => setContent(newContent)}
-        setEditorView={setEditorView}
       />
     </>
   )

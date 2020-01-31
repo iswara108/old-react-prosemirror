@@ -38,7 +38,6 @@ describe('test default rich text box', () => {
       cy.contains(first)
         .should('have.css', 'font-weight', BOLD_WEIGHT)
         .and('have.css', 'font-style', 'normal')
-        .and('have.css', 'font-style', 'normal')
 
       cy.get('#prosemirror-multiline').type('{ctrl}b')
 
