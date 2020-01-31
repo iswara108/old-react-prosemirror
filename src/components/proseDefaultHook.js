@@ -1,7 +1,7 @@
 import React /* eslint-disable-line no-unused-vars */, {
-  useState,
   useLayoutEffect,
-  useEffect
+  useEffect,
+  useReducer
 } from 'react'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
@@ -17,7 +17,6 @@ function useDefaultProseState({
   disableEdit,
   plugins: additionalPlugins = []
 }) {
-  const [editorState, setEditorState] = useState()
   if (disableEdit) {
     additionalPlugins.unshift(
       new Plugin({
@@ -40,16 +39,29 @@ function useDefaultProseState({
     ...additionalPlugins
   ]
 
+  const [editorState, dispatch] = useReducer(reducer)
+  const setEditorState = newState =>
+    dispatch({ type: 'setNewState', payload: newState })
+
+  function reducer(state, action) {
+    switch (action.type) {
+      case 'initState':
+        return EditorState.create({
+          doc: initialContent
+            ? schema.nodeFromJSON(initialContent)
+            : schema.node('doc', null, schema.node('paragraph', null)),
+          plugins
+        })
+      case 'setNewState':
+        return action.payload
+      default:
+        throw new Error(`action type ${action.type} isn't recognized.`)
+    }
+  }
+
   useEffect(() => {
-    setEditorState(
-      EditorState.create({
-        doc: initialContent
-          ? schema.nodeFromJSON(initialContent)
-          : schema.node('doc', null, schema.node('paragraph', null)),
-        plugins
-      })
-    )
-  }, [setEditorState])
+    dispatch({ type: 'initState' })
+  }, [])
 
   useLayoutEffect(() => {
     if (editorState && onChange) onChange(editorState)
