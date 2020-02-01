@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import ProseHashtagView from './ProseHashtagView'
-import ProseDefaultView from './ProseDefaultView'
+import ProseHashtagView from './suggestedEntities/ProseHashtagView'
+import ProseDefaultView from './base/ProseDefaultView'
 
 const ReactProseMirror = props => {
   const { hashtags, hashtagSuggestionList = [] } = props

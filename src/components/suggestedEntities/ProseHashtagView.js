@@ -1,5 +1,5 @@
 import React from 'react'
-import ProseView from './ProseView'
+import ProseView from '../base/ProseView'
 import SelectHashtags from './SelectHashtags'
 import useHashtagProseState from './hashtagHook'
 import * as actionTypes from './hashtagSuggestionsRecuder'

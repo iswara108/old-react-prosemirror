@@ -2,7 +2,7 @@ import React, { useState, useLayoutEffect, useRef } from 'react'
 import { EditorView } from 'prosemirror-view'
 import 'prosemirror-view/style/prosemirror.css'
 
-import './richTextEditor.css'
+import './proseMirror.css'
 
 export default props => {
   const { editorState, autoFocus } = props

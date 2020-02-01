@@ -1,6 +1,6 @@
 import React from 'react'
 import ProseView from './ProseView'
-import useDefaultProseState from './proseDefaultHook'
+import useDefaultProseState from './defaultProseState'
 
 export default props => {
   const {

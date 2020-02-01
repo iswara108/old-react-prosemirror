@@ -6,7 +6,7 @@ import React /* eslint-disable-line no-unused-vars */, {
 } from 'react'
 
 import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
-import useDefaultProseState from './proseDefaultHook'
+import useDefaultProseState from '../base/defaultProseState'
 import hashtagSchema from './hashtagSchema'
 import hashtagPlugin from './hashtagPlugin'
 import {

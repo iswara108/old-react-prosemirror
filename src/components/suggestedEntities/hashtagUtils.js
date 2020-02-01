@@ -1,4 +1,4 @@
-import Tokenizer from '../utils/text/tokenizer'
+import Tokenizer from '../../utils/text/tokenizer'
 const HASHTAG_SCHEMA_NODE_TYPE = 'hashtag'
 
 const getTokens = doc => {
