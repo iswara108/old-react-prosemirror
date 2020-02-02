@@ -11,7 +11,8 @@ export default props => {
     multiline = false,
     disableMarks = false,
     autoFocus = false,
-    disableEdit = false
+    disableEdit = false,
+    setEditorView
   } = props
 
   const [editorState] = useDefaultProseState({
@@ -25,7 +26,12 @@ export default props => {
 
   return (
     <>
-      <ProseView id={id} editorState={editorState} autoFocus={autoFocus} />
+      <ProseView
+        id={id}
+        editorState={editorState}
+        autoFocus={autoFocus}
+        setEditorView={setEditorView}
+      />
     </>
   )
 }

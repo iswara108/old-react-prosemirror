@@ -54,6 +54,7 @@ function App() {
         id="prosemirror-multiline"
         label="description"
         multiline
+        setEditorView={setEditorView}
       />
       <ReactProseMirror
         id="prosemirror-multiline2"
@@ -66,6 +67,7 @@ function App() {
         multiline
         value={content}
         onChange={c => setContent(c)}
+        autoFocus
       />
       <ReactProseMirror
         id="prosemirror-multiline2-controlled"
