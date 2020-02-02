@@ -5,9 +5,9 @@ import useDefaultProseState from './defaultProseState'
 export default props => {
   const {
     id,
-    initialContent,
-    editorState: parentControlledState,
-    onStateChange,
+    defaultValue,
+    value,
+    onChange,
     multiline = false,
     disableMarks = false,
     autoFocus = false,
@@ -15,9 +15,9 @@ export default props => {
   } = props
 
   const [innerEditorState] = useDefaultProseState({
-    parentControlledState,
-    onStateChange,
-    initialContent,
+    value,
+    onChange,
+    defaultValue,
     multiline,
     disableMarks,
     disableEdit

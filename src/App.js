@@ -55,6 +55,25 @@ function App() {
         label="description"
         multiline
       />
+      <ReactProseMirror
+        id="prosemirror-multiline2"
+        label="description"
+        multiline
+      />
+      <ReactProseMirror
+        id="prosemirror-multiline-controlled"
+        label="description"
+        multiline
+        value={content}
+        onChange={c => setContent(c)}
+      />
+      <ReactProseMirror
+        id="prosemirror-multiline2-controlled"
+        label="description"
+        multiline
+        value={content}
+        onChange={c => setContent(c)}
+      />
       <ReactProseMirror id="prosemirror-singleline" label="description" />
       {hashtagListFixture && (
         <ReactProseMirror

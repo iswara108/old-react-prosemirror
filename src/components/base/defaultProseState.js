@@ -1,17 +1,22 @@
-import React /* eslint-disable-line no-unused-vars */, {
-  useLayoutEffect,
-  useEffect,
-  useReducer
-} from 'react'
+import { useLayoutEffect, useEffect, useReducer } from 'react'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
+import { Node } from 'prosemirror-model'
 import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
 import { exampleSetup } from 'prosemirror-example-setup'
 
+// this hook manages the prosemirror editorState controlled by its parent. (https://prosemirror.net/docs/ref/#state)
+// It:
+// 1. Keeps the editorView (https://prosemirror.net/docs/ref/#view) in sync with the state
+// 2. Initializes any plugin (https://prosemirror.net/docs/ref/#state.Plugin_System) passed through props
+// 3. Introduces a "read only plugin", if "disableEdit" prop is passed
+// 4. Allows for initialContent in the form of a JSON object (see https://prosemirror.net/docs/ref/#model.Node.toJSON)
+//
+// Returns:
 function useDefaultProseState({
-  parentControlledState,
-  onStateChange,
-  initialContent,
+  value,
+  onChange,
+  defaultValue,
   multiline,
   disableMarks,
   schema = defaultSchema(multiline, disableMarks),
@@ -44,17 +49,34 @@ function useDefaultProseState({
     switch (action.type) {
       case 'initState':
         return EditorState.create({
-          doc: initialContent
-            ? schema.nodeFromJSON(initialContent)
-            : schema.node('doc', null, schema.node('paragraph', null)),
+          doc:
+            defaultValue || value
+              ? schema.nodeFromJSON(defaultValue || value)
+              : schema.node('doc', null, schema.node('paragraph', null)),
           plugins
         })
 
       case 'setNewState':
-        return EditorState.fromJSON(
+        const newState = EditorState.fromJSON(
           { schema, plugins },
           action.payload.toJSON()
         )
+
+        return newState
+      case 'setNewContent': {
+        if (
+          state &&
+          action.payload &&
+          JSON.stringify(state.doc) !== JSON.stringify(action.payload)
+        ) {
+          return EditorState.create(
+            { doc: Node.fromJSON(schema, action.payload), plugins },
+            action.payload
+          )
+        } else {
+          return state
+        }
+      }
       default:
         throw new Error(`action type ${action.type} isn't recognized.`)
     }
@@ -71,14 +93,15 @@ function useDefaultProseState({
 
   // update parent component whenever editorState changes
   useLayoutEffect(() => {
-    if (editorState && onStateChange) onStateChange(editorState)
-  }, [editorState, onStateChange])
+    if (editorState && onChange) {
+      onChange(editorState.doc.toJSON())
+    }
+  }, [editorState])
 
   // update inner state whenever parent state changed
   useLayoutEffect(() => {
-    if (parentControlledState)
-      dispatch({ type: 'setNewState', payload: parentControlledState })
-  }, [parentControlledState])
+    dispatch({ type: 'setNewContent', payload: value })
+  }, [value])
 
   return [editorState, setEditorState]
 }

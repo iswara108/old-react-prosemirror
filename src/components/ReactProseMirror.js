@@ -7,16 +7,14 @@ import ProseDefaultView from './base/ProseDefaultView'
 const ReactProseMirror = props => {
   const { hashtags, hashtagSuggestionList = [] } = props
 
-  if (hashtags) {
-    return (
-      <ProseHashtagView
-        {...props}
-        hashtagSuggestionList={hashtagSuggestionList}
-      />
-    )
-  } else {
-    return <ProseDefaultView {...props} />
-  }
+  return hashtags ? (
+    <ProseHashtagView
+      {...props}
+      hashtagSuggestionList={hashtagSuggestionList}
+    />
+  ) : (
+    <ProseDefaultView {...props} />
+  )
 }
 
 ReactProseMirror.propTypes = {
