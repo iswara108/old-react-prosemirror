@@ -4,7 +4,7 @@ import SelectHashtags from './SelectHashtags'
 import useHashtagProseState from './hashtagHook'
 import * as actionTypes from './hashtagSuggestionsRecuder'
 
-export default React.forwardRef((props, ref) => {
+const ProseHashtagView = React.forwardRef((props, parentRef) => {
   const {
     multiline = false,
     parentControlledState,
@@ -21,9 +21,10 @@ export default React.forwardRef((props, ref) => {
   } = props
 
   const contentEditableDom = React.createRef()
-  if (ref) contentEditableDom.current = ref.current // forward optional parent ref to DOM element.
+  if (parentRef) parentRef.current = contentEditableDom.current // forward optional parent ref to DOM element.
 
-  const focusViewHook = () => contentEditableDom.current.focus()
+  const focusViewHook = () =>
+    contentEditableDom.current.querySelector('div[contentEditable]').focus()
 
   const [
     editorState,
@@ -96,3 +97,5 @@ export default React.forwardRef((props, ref) => {
     </>
   )
 })
+
+export default ProseHashtagView
