@@ -14,7 +14,7 @@ export default props => {
     disableEdit = false
   } = props
 
-  const [innerEditorState] = useDefaultProseState({
+  const [editorState] = useDefaultProseState({
     value,
     onChange,
     defaultValue,
@@ -25,7 +25,7 @@ export default props => {
 
   return (
     <>
-      <ProseView id={id} editorState={innerEditorState} autoFocus={autoFocus} />
+      <ProseView id={id} editorState={editorState} autoFocus={autoFocus} />
     </>
   )
 }

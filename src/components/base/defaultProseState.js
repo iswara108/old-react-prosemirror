@@ -1,4 +1,4 @@
-import { useLayoutEffect, useEffect, useReducer } from 'react'
+import { useRef, useLayoutEffect, useEffect, useReducer } from 'react'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import { Node } from 'prosemirror-model'
@@ -10,9 +10,11 @@ import { exampleSetup } from 'prosemirror-example-setup'
 // 1. Keeps the editorView (https://prosemirror.net/docs/ref/#view) in sync with the state
 // 2. Initializes any plugin (https://prosemirror.net/docs/ref/#state.Plugin_System) passed through props
 // 3. Introduces a "read only plugin", if "disableEdit" prop is passed
-// 4. Allows for initialContent in the form of a JSON object (see https://prosemirror.net/docs/ref/#model.Node.toJSON)
+// 4. Allows for defaultValue prop in the form of a JSON object for an uncontrolled component (see https://prosemirror.net/docs/ref/#model.Node.toJSON)
+// 5. Allows for value and onChange props in the from of a JSON object for a controlled component
 //
-// Returns:
+// Returns: editorState (see https://prosemirror.net/docs/ref/#state.Editor_State), setEditorState (callback to dispatch a change in the editorState)
+
 function useDefaultProseState({
   value,
   onChange,
@@ -45,7 +47,7 @@ function useDefaultProseState({
     ...additionalPlugins
   ]
 
-  const reducer = (state, action) => {
+  const editorStateReducer = (state, action) => {
     switch (action.type) {
       case 'initState':
         return EditorState.create({
@@ -57,48 +59,49 @@ function useDefaultProseState({
         })
 
       case 'setNewState':
-        const newState = EditorState.fromJSON(
+        return EditorState.fromJSON(
           { schema, plugins },
           action.payload.toJSON()
         )
 
-        return newState
       case 'setNewContent': {
-        if (
-          state &&
+        return state &&
           action.payload &&
-          JSON.stringify(state.doc) !== JSON.stringify(action.payload)
-        ) {
-          return EditorState.create(
-            { doc: Node.fromJSON(schema, action.payload), plugins },
-            action.payload
-          )
-        } else {
-          return state
-        }
+          JSON.stringify(state.doc) !== JSON.stringify(action.payload) // compare contents. Only if changed - create a new state.
+          ? EditorState.create(
+              { doc: Node.fromJSON(schema, action.payload), plugins },
+              action.payload
+            )
+          : state
       }
+
       default:
         throw new Error(`action type ${action.type} isn't recognized.`)
     }
   }
 
-  const [editorState, dispatch] = useReducer(reducer)
-  const setEditorState = newState =>
-    dispatch({ type: 'setNewState', payload: newState })
+  const [editorState, dispatch] = useReducer(editorStateReducer)
 
-  // initialize editorState
+  // initialize editorState once the component is mounted.
   useEffect(() => {
     dispatch({ type: 'initState' })
   }, [])
 
-  // update parent component whenever editorState changes
-  useLayoutEffect(() => {
-    if (editorState && onChange) {
-      onChange(editorState.doc.toJSON())
-    }
-  }, [editorState])
+  const setEditorState = newState =>
+    dispatch({ type: 'setNewState', payload: newState })
 
-  // update inner state whenever parent state changed
+  // in order to avoid infinite rerenders due to onChange callbacks - save as ref. (See https://github.com/facebook/react/issues/15282)
+  const latestOnChange = useRef(onChange)
+  useLayoutEffect(() => (latestOnChange.current = onChange), [onChange])
+
+  // update parent component whenever editorState changes.
+  useLayoutEffect(() => {
+    if (editorState && latestOnChange.current) {
+      latestOnChange.current(editorState.doc.toJSON())
+    }
+  }, [editorState, latestOnChange])
+
+  // update inner state whenever parent changed values.
   useLayoutEffect(() => {
     dispatch({ type: 'setNewContent', payload: value })
   }, [value])
