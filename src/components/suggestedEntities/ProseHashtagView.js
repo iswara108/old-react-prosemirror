@@ -4,7 +4,7 @@ import SelectHashtags from './SelectHashtags'
 import useHashtagProseState from './hashtagHook'
 import * as actionTypes from './hashtagSuggestionsRecuder'
 
-export default props => {
+export default React.forwardRef((props, ref) => {
   const {
     multiline = false,
     parentControlledState,
@@ -20,9 +20,10 @@ export default props => {
     setEditorView
   } = props
 
-  // TODO: Refactor to useRef
-  // This is used to trigger the keyboard back on mobile
-  const focusViewHook = () => document.querySelector(`#${id} > div`).focus()
+  const contentEditableDom = React.createRef()
+  if (ref) contentEditableDom.current = ref.current // forward optional parent ref to DOM element.
+
+  const focusViewHook = () => contentEditableDom.current.focus()
 
   const [
     editorState,
@@ -71,6 +72,7 @@ export default props => {
         onKeyDown={handleKeyDown}
         autoFocus={autoFocus}
         setEditorView={setEditorView}
+        ref={contentEditableDom}
       />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
         <SelectHashtags
@@ -93,4 +95,4 @@ export default props => {
       )}
     </>
   )
-}
+})

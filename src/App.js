@@ -8,7 +8,7 @@ function App() {
   const [hashtagListDynamic, setHashtagListDynamic] = useState([])
   const [devtools, setDevtools] = useState(false)
   const [editorView, setEditorView] = useState()
-
+  const ref = React.createRef()
   const [content, setContent] = useState({
     type: 'doc',
     content: [
@@ -39,7 +39,8 @@ function App() {
 
   useEffect(() => {
     console.info(JSON.stringify(content, undefined, 2))
-  }, [content])
+    console.info(ref && ref.current && ref.current.innerHTML)
+  }, [content, ref])
 
   useEffect(() => {
     if (content && editorView && !devtools) {
@@ -54,7 +55,6 @@ function App() {
         id="prosemirror-multiline"
         label="description"
         multiline
-        setEditorView={setEditorView}
       />
       <ReactProseMirror
         id="prosemirror-multiline2"
@@ -75,6 +75,7 @@ function App() {
         multiline
         value={content}
         onChange={c => setContent(c)}
+        ref={ref}
       />
       <ReactProseMirror id="prosemirror-singleline" label="description" />
       {hashtagListFixture && (
@@ -98,6 +99,7 @@ function App() {
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
+        setEditorView={setEditorView}
       />
     </>
   )

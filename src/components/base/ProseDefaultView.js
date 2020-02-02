@@ -2,7 +2,7 @@ import React from 'react'
 import ProseView from './ProseView'
 import useDefaultProseState from './defaultProseState'
 
-export default props => {
+const ProseDefaultView = React.forwardRef((props, ref) => {
   const {
     id,
     defaultValue,
@@ -31,7 +31,10 @@ export default props => {
         editorState={editorState}
         autoFocus={autoFocus}
         setEditorView={setEditorView}
+        ref={ref}
       />
     </>
   )
-}
+})
+
+export default ProseDefaultView

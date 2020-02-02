@@ -98,4 +98,8 @@ describe('test default rich text box', () => {
       .should('have.length', 1)
       .and('contain', 'oṃnamaḥśivāya')
   })
+
+  it.skip('tests autofocus', () => {})
+  context.skip('controlled components', () => {})
+  context.skip('uncontrolled components', () => {})
 })

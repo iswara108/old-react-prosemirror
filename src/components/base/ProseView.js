@@ -1,14 +1,21 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  forwardRef
+} from 'react'
 import { EditorView } from 'prosemirror-view'
 import 'prosemirror-view/style/prosemirror.css'
 
 import './proseMirror.css'
 
-const ProseView = props => {
+const ProseView = forwardRef((props, ref) => {
   const { editorState, autoFocus } = props
   const [editorView, setEditorView] = useState(null)
 
   const contentEditableDom = useRef(document.createElement('div'))
+  if (ref) ref.current = contentEditableDom.current // forward optional parent ref to DOM element.
 
   // Initialize editor view on the first time the state exists.
   useLayoutEffect(() => {
@@ -46,6 +53,6 @@ const ProseView = props => {
   delete propsToDiv.setEditorView
 
   return <div ref={contentEditableDom} {...propsToDiv} />
-}
+})
 
 export default ProseView
