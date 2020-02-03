@@ -6,18 +6,18 @@ import * as actionTypes from './hashtagSuggestionsRecuder'
 
 const ProseHashtagView = React.forwardRef((props, parentRef) => {
   const {
-    multiline = false,
-    parentControlledState,
-    onStateChange,
     id,
-    initialContent,
+    defaultValue,
+    value,
+    onChange,
+    multiline = false,
     disableMarks = false,
-    autoFocus,
+    autoFocus = false,
     disableEdit = false,
+    setEditorView,
     hashtagSuggestionList = [],
-    onNewHashtag,
     hashtags: hashtagsType,
-    setEditorView
+    onNewHashtag
   } = props
 
   const contentEditableDom = React.createRef()
@@ -32,18 +32,19 @@ const ProseHashtagView = React.forwardRef((props, parentRef) => {
     dispatchSuggestionsChange,
     resolveHashtag
   ] = useHashtagProseState({
-    focusViewHook,
-    parentControlledState,
-    onStateChange,
-    initialContent,
+    defaultValue,
+    value,
+    onChange,
     multiline,
     disableMarks,
     disableEdit,
     hashtagSuggestionList,
     onNewHashtag,
+    focusViewHook,
     hashtagsType
   })
 
+  // Handle moving up/down and selecting hashtags.
   const handleKeyDown = e => {
     if (isNaN(suggestionsState.highlightIndex)) return
 
@@ -65,6 +66,19 @@ const ProseHashtagView = React.forwardRef((props, parentRef) => {
     }
   }
 
+  const setHighlightIndex = index =>
+    dispatchSuggestionsChange({
+      type: actionTypes.SET_HIGHLIGHT_INDEX,
+      payload: { index }
+    })
+
+  const setAsSelected = index => {
+    dispatchSuggestionsChange({
+      type: actionTypes.CLOSE_HASHTAG_OPTIONS
+    })
+    resolveHashtag(index)
+  }
+
   return (
     <>
       <ProseView
@@ -79,18 +93,8 @@ const ProseHashtagView = React.forwardRef((props, parentRef) => {
         <SelectHashtags
           inputValue={suggestionsState.hashtagUnderConstruction.value}
           highlightIndex={suggestionsState.highlightIndex || 0}
-          setHighlightIndex={index =>
-            dispatchSuggestionsChange({
-              type: actionTypes.SET_HIGHLIGHT_INDEX,
-              payload: { index }
-            })
-          }
-          setAsSelected={index => {
-            dispatchSuggestionsChange({
-              type: actionTypes.CLOSE_HASHTAG_OPTIONS
-            })
-            resolveHashtag(index)
-          }}
+          setHighlightIndex={setHighlightIndex}
+          setAsSelected={setAsSelected}
           suggestionList={suggestionsState.suggestionList}
         />
       )}

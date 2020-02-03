@@ -32,7 +32,7 @@ function useHashtagProseState({
 }) {
   const schema = hashtagSchema(multiline, disableMarks)
 
-  // call main proseEditor hook to manage editorState
+  // create default editorState
   const [editorState, setEditorState] = useDefaultProseState({
     schema,
     onChange,
@@ -46,9 +46,9 @@ function useHashtagProseState({
   // hashtagUnderConstruction is the text beginning with # while the cursor is on it.
   const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
 
-  // suggestionsState is the state management of the displaying of hashtag options and their manipulation
-  // (highlighting and selecting a hashtag to resolve to).
-  const [suggestionsState, dispatchSuggestionsChange] = useReducer(
+  // optionsState is the state management of the displaying of hashtag options and their manipulation
+  // (highlighting and selecting a hashtag to be resolved, or creating a new hashtag option).
+  const [optionsState, dispatchOptionsChange] = useReducer(
     // Use "bind" to insert two arguments before the standard "state, action" arguments of React.useReducer
     suggestionsStateReducer.bind(
       null,
@@ -58,7 +58,7 @@ function useHashtagProseState({
     {} // initial state empty
   )
 
-  // Whenever the state changes - color all the hashtags
+  // Update state if the selection cursor is under a hashtag under construction.
   useEffect(() => {
     if (!editorState) return
 
@@ -67,24 +67,24 @@ function useHashtagProseState({
     )
   }, [editorState])
 
-  // Whenever the hashtag under construction changed its state - update the suggestions list
+  // Whenever the hashtag under construction changed its state - update the options list
   useEffect(() => {
     if (hashtagUnderConstruction) {
-      dispatchSuggestionsChange({ type: OPEN_HASHTAG_OPTIONS })
+      dispatchOptionsChange({ type: OPEN_HASHTAG_OPTIONS })
     } else {
-      dispatchSuggestionsChange({ type: CLOSE_HASHTAG_OPTIONS })
+      dispatchOptionsChange({ type: CLOSE_HASHTAG_OPTIONS })
     }
   }, [hashtagUnderConstruction])
 
   // Insert the selected hashtag as a resolved hashtag.
   // When "selectedIndex" is passed as -1, it implies creating a new hashtag out of the one under construction.
   const resolveHashtag = selectedIndex => {
-    if (isNaN(selectedIndex)) selectedIndex = suggestionsState.highlightIndex
+    if (isNaN(selectedIndex)) selectedIndex = optionsState.highlightIndex
 
-    // resolve the new hashtag text - either from the selected suggestion or from the hashtag under construction.
+    // resolve the new hashtag text - either from the selected option or from the hashtag under construction.
     const newHashtagText =
       selectedIndex > -1
-        ? suggestionsState.suggestionList[selectedIndex]
+        ? optionsState.suggestionList[selectedIndex]
         : hashtagUnderConstruction.value
 
     const newHashtagNode = schema.node(
@@ -93,12 +93,10 @@ function useHashtagProseState({
       schema.text(newHashtagText)
     )
 
-    const interimState = EditorState.create({
-      doc: schema.nodeFromJSON(editorState.doc.toJSON()),
-      selection: editorState.selection,
-      plugins: editorState.plugins,
-      storedMarks: editorState.storedMarks
-    })
+    const interimState = EditorState.fromJSON(
+      { schema, plugins: editorState.plugins },
+      editorState.toJSON()
+    )
 
     // initialize a transaction
     const transaction = interimState.tr
@@ -118,7 +116,7 @@ function useHashtagProseState({
 
     setEditorState(interimState.apply(transaction))
 
-    // Invoke back the keyboard on mobile
+    // Invoke back the keyboard (for mobile)
     focusViewHook()
 
     // Add new selection into the global list of hashtags
@@ -127,11 +125,14 @@ function useHashtagProseState({
 
   // whenever the state changes -
   // update selection to encopass the resolved hashtag in its entirety, in case the selection or cursor are touching it.
+
+  // TODO : refactor to a reducer.
   useLayoutEffect(() => {
     if (!editorState) return
 
     const selectionEndAsHashtag = [
-      (editorState.selection.$anchor, editorState.selection.$head)
+      editorState.selection.$anchor,
+      editorState.selection.$head
     ].find(
       selectionEnd =>
         selectionEnd.node(selectionEnd.depth).type.name ===
@@ -171,12 +172,7 @@ function useHashtagProseState({
     }
   }, [editorState, setEditorState])
 
-  return [
-    editorState,
-    suggestionsState,
-    dispatchSuggestionsChange,
-    resolveHashtag
-  ]
+  return [editorState, optionsState, dispatchOptionsChange, resolveHashtag]
 }
 
 export default useHashtagProseState

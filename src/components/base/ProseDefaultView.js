@@ -16,9 +16,9 @@ const ProseDefaultView = React.forwardRef((props, ref) => {
   } = props
 
   const [editorState] = useDefaultProseState({
+    defaultValue,
     value,
     onChange,
-    defaultValue,
     multiline,
     disableMarks,
     disableEdit

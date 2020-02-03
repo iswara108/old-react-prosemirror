@@ -36,7 +36,8 @@ export default ({
       <div className={classes.container}>
         <div>
           <Paper className={classes.paper} square>
-            {!suggestionList.some(suggestion => suggestion === inputValue) && ( // display option to create new hashtag only if there is no exact match.
+            {// display option to create new hashtag only if there is no exact match.
+            !suggestionList.some(suggestion => suggestion === inputValue) && (
               <Suggestion
                 suggestion={`${inputValue} (create new)`}
                 index={-1}
