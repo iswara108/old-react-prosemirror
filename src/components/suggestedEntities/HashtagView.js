@@ -1,10 +1,10 @@
 import React from 'react'
 import ProseView from '../base/ProseView'
 import SelectHashtags from './SelectHashtags'
-import useHashtagProseState from './hashtagHook'
+import useHashtagProseState from './hashtagState'
 import * as actionTypes from './hashtagSuggestionsRecuder'
 
-const ProseHashtagView = React.forwardRef((props, parentRef) => {
+const HashtagView = React.forwardRef((props, parentRef) => {
   const {
     id,
     defaultValue,
@@ -102,4 +102,4 @@ const ProseHashtagView = React.forwardRef((props, parentRef) => {
   )
 })
 
-export default ProseHashtagView
+export default HashtagView

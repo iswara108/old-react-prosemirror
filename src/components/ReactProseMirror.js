@@ -1,14 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import ProseHashtagView from './suggestedEntities/ProseHashtagView'
+import HashtagView from './suggestedEntities/HashtagView'
 import ProseDefaultView from './base/ProseDefaultView'
 
 const ReactProseMirror = React.forwardRef((props, ref) => {
   const { hashtags, hashtagSuggestionList = [] } = props
 
   return hashtags ? (
-    <ProseHashtagView
+    <HashtagView
       {...props}
       hashtagSuggestionList={hashtagSuggestionList}
       ref={ref}

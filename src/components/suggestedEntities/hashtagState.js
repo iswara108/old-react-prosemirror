@@ -140,6 +140,7 @@ function useHashtagProseState({
     )
 
     if (selectionEndAsHashtag) {
+      console.info('at end', editorState.selection.toString())
       const hashtagSelection = NodeSelection.create(
         editorState.doc,
         selectionEndAsHashtag.before(selectionEndAsHashtag.depth)
