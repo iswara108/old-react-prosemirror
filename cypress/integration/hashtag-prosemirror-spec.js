@@ -55,6 +55,13 @@ describe('hashtags', () => {
     })
 
     describe('resolve hashtags', () => {
+      it('resolve hashtag suggestions using mouse click', () => {
+        cy.get('#prosemirror-hashtag-immutables').as('immutables')
+        cy.get('@immutables').type('Do paperwork #of')
+        cy.contains('#office').click()
+        cy.get('@immutables').should('contain', 'Do paperwork #office')
+      })
+
       it('resolves hashtag suggestions', () => {
         cy.get('#prosemirror-hashtag-immutables')
           .type('Do paperwork #of{enter}')
@@ -111,6 +118,17 @@ describe('hashtags', () => {
           cy.contains('computer').should('not.have.class', 'Mui-selected')
         })
       })
+
+      it('shows and hides selection upon entering and leaving hashtag', () => {
+        cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #off')
+        cy.get('.select-hashtags')
+          .should('be.visible')
+          .within(() => {
+            cy.contains('office').should('be.visible')
+          })
+        cy.get('#prosemirror-hashtag-immutables').type(' ')
+        cy.get('.select-hashtags').should('not.be.visible')
+      })
     })
 
     describe('selection on immutable hashtags', () => {
@@ -129,7 +147,7 @@ describe('hashtags', () => {
           expectSelectionToEqual('#office')
         })
 
-        it.skip('click multiple "leftArrow"s when hashtag in the beginning', () => {
+        it.skip('type multiple "leftArrow"s when hashtag in the beginning', () => {
           cy.get('#prosemirror-hashtag-immutables').type(
             '#reading{enter} something{home}{leftArrow}{leftArrow}{leftArrow}'
           )
