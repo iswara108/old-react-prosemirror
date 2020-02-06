@@ -24,6 +24,12 @@ const getTokens = doc => {
   return tokens
 }
 
+// get a hashtag object, containing the keys:
+// {
+//  start: Number,
+//  end: Number,
+//  value: String
+// }
 const findHashtagUnderCursor = (doc, selection) => {
   const tokens = getTokens(doc)
   const lowestSelection = Math.min(selection.anchor, selection.head)

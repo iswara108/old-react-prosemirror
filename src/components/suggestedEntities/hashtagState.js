@@ -1,10 +1,4 @@
-import React /* eslint-disable-line no-unused-vars */, {
-  useReducer,
-  useState,
-  useEffect,
-  useLayoutEffect
-} from 'react'
-
+import { useReducer, useEffect, useLayoutEffect } from 'react'
 import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
 import useDefaultProseState from '../base/defaultProseState'
 import hashtagSchema from './hashtagSchema'
@@ -15,8 +9,7 @@ import {
 } from './hashtagUtils'
 import {
   suggestionsStateReducer,
-  OPEN_HASHTAG_OPTIONS,
-  CLOSE_HASHTAG_OPTIONS
+  SET_HASHTAG_UNDER_CONSTRUCTION
 } from './hashtagSuggestionsRecuder'
 
 function useHashtagProseState({
@@ -43,18 +36,11 @@ function useHashtagProseState({
     plugins: [hashtagPlugin]
   })
 
-  // hashtagUnderConstruction is the text beginning with # while the cursor is on it.
-  const [hashtagUnderConstruction, setHashtagUnderConstruction] = useState()
-
   // optionsState is the state management of the displaying of hashtag options and their manipulation
   // (highlighting and selecting a hashtag to be resolved, or creating a new hashtag option).
   const [optionsState, dispatchOptionsChange] = useReducer(
-    // Use "bind" to insert two arguments before the standard "state, action" arguments of React.useReducer
-    suggestionsStateReducer.bind(
-      null,
-      hashtagUnderConstruction,
-      hashtagSuggestionList
-    ),
+    // Use "bind" to insert an argument before the standard "state, action" arguments of React.useReducer
+    suggestionsStateReducer.bind(null, hashtagSuggestionList),
     {} // initial state empty
   )
 
@@ -62,30 +48,21 @@ function useHashtagProseState({
   useEffect(() => {
     if (!editorState) return
 
-    setHashtagUnderConstruction(
-      findHashtagUnderCursor(editorState.doc, editorState.selection)
-    )
+    dispatchOptionsChange({
+      type: SET_HASHTAG_UNDER_CONSTRUCTION,
+      payload: findHashtagUnderCursor(editorState.doc, editorState.selection)
+    })
   }, [editorState])
-
-  // Whenever the hashtag under construction changed its state - update the options list
-  useEffect(() => {
-    if (hashtagUnderConstruction) {
-      dispatchOptionsChange({ type: OPEN_HASHTAG_OPTIONS })
-    } else {
-      dispatchOptionsChange({ type: CLOSE_HASHTAG_OPTIONS })
-    }
-  }, [hashtagUnderConstruction])
 
   // Insert the selected hashtag as a resolved hashtag.
   // When "selectedIndex" is passed as -1, it implies creating a new hashtag out of the one under construction.
   const resolveHashtag = selectedIndex => {
     if (isNaN(selectedIndex)) selectedIndex = optionsState.highlightIndex
-
     // resolve the new hashtag text - either from the selected option or from the hashtag under construction.
     const newHashtagText =
       selectedIndex > -1
         ? optionsState.suggestionList[selectedIndex]
-        : hashtagUnderConstruction.value
+        : optionsState.hashtagUnderConstruction.value
 
     const newHashtagNode = schema.node(
       HASHTAG_SCHEMA_NODE_TYPE,
@@ -103,14 +80,14 @@ function useHashtagProseState({
 
     // insert the resolved hashtag node instead of the hashtag under construction.
     transaction.replaceRangeWith(
-      hashtagUnderConstruction.start + 1,
-      hashtagUnderConstruction.end + 1,
+      optionsState.hashtagUnderConstruction.start + 1,
+      optionsState.hashtagUnderConstruction.end + 1,
       newHashtagNode
     )
 
     // insert a space in a text node after the resolved hashtag.
     transaction.insert(
-      transaction.mapping.map(hashtagUnderConstruction.end + 1),
+      transaction.mapping.map(optionsState.hashtagUnderConstruction.end + 1),
       schema.text(' ')
     )
 
