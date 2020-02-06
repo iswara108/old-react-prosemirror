@@ -59,9 +59,10 @@ const hashtagPlugin = new Plugin({
     }
   },
   filterTransaction(transaction, editorState) {
-    let changeInHastag = false
+    let changeInHashtag = false
     const editorHashtags = [],
       transactionHashtags = []
+
     editorState.doc.descendants((node, pos) => {
       if (node.type.name === HASHTAG_SCHEMA_NODE_TYPE)
         editorHashtags.push({ node, pos })
@@ -79,11 +80,11 @@ const hashtagPlugin = new Plugin({
       )
       if (correspondingHashtag) {
         if (!transHashtag.node.eq(correspondingHashtag.node))
-          changeInHastag = true
+          changeInHashtag = true
       }
     })
 
-    return !changeInHastag
+    return !changeInHashtag
   }
 })
 
