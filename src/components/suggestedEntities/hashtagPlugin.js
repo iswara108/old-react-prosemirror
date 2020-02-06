@@ -1,5 +1,5 @@
 import { Decoration, DecorationSet } from 'prosemirror-view'
-import { Plugin, PluginKey } from 'prosemirror-state'
+import { Plugin, PluginKey, NodeSelection } from 'prosemirror-state'
 import {
   findAllHashtags,
   findHashtagUnderCursor,
@@ -46,6 +46,15 @@ const hashtagPlugin = new Plugin({
           )
           if (hashtagUnderConstruction) event.preventDefault()
         }
+      }
+    },
+    createSelectionBetween(view, anchor, head) {
+      if (head.node(head.depth).type.name === HASHTAG_SCHEMA_NODE_TYPE) {
+        const hashtagSelection = NodeSelection.create(
+          view.state.doc,
+          head.before(head.depth)
+        )
+        return hashtagSelection
       }
     }
   },

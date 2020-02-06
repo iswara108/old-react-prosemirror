@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useLayoutEffect } from 'react'
-import { EditorState, NodeSelection, TextSelection } from 'prosemirror-state'
+import { EditorState, TextSelection } from 'prosemirror-state'
 import useDefaultProseState from '../base/defaultProseState'
 import hashtagSchema from './hashtagSchema'
 import hashtagPlugin from './hashtagPlugin'
@@ -99,35 +99,6 @@ function useHashtagProseState({
     // Add new selection into the global list of hashtags
     if (selectedIndex === -1) onNewHashtag(newHashtagText)
   }
-
-  // whenever the state changes -
-  // update selection to encopass the resolved hashtag in its entirety, in case the selection or cursor are touching it.
-
-  // TODO : refactor to a reducer.
-  useLayoutEffect(() => {
-    if (!editorState) return
-
-    const selectionEndAsHashtag = [
-      editorState.selection.$anchor,
-      editorState.selection.$head
-    ].find(
-      selectionEnd =>
-        selectionEnd.node(selectionEnd.depth).type.name ===
-        HASHTAG_SCHEMA_NODE_TYPE
-    )
-
-    if (selectionEndAsHashtag) {
-      console.info('at end', editorState.selection.toString())
-      const hashtagSelection = NodeSelection.create(
-        editorState.doc,
-        selectionEndAsHashtag.before(selectionEndAsHashtag.depth)
-      )
-
-      const transaction = editorState.tr
-      transaction.setSelection(hashtagSelection)
-      setEditorState(editorState.apply(transaction))
-    }
-  }, [editorState, setEditorState])
 
   useLayoutEffect(() => {
     if (!editorState) return
