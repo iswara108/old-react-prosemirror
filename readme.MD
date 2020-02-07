@@ -15,16 +15,17 @@ export default () => <ReactProseMirror />
 
 ### Props
 
-| Prop Name             | Description                                                                                                                                                               |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| id                    | HTML id property                                                                                                                                                          |
-| label                 | TBD                                                                                                                                                                       |
-| content               | JSON-serializeable representation of a [node](https://prosemirror.net/docs/ref/#model.Node). Read this [guide](https://prosemirror.net/docs/guide/#doc) for understanding |
-| onChange              | Callback when the content has changed. For example: <br> `onChange={newContent => setContent(newContent)}`                                                                |  |
-| hashtags              | "immutable" - for immutable hashtags                                                                                                                                      |
-|                       | "mutable" - accepting any word prefixed by # as a hashtag                                                                                                                 |
-| hashtagSuggestionList | Array of strings beginning with # to suggest                                                                                                                              |
-| multiline             | Allow multiline                                                                                                                                                           |
+| Prop Name             | Description                                                                                                                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id                    | HTML id property                                                                                                                                                                                      |
+| label                 | TBD                                                                                                                                                                                                   |
+| defaultValue          | Uncontrolled: JSON-serializeable representation of a [node](https://prosemirror.net/docs/ref/#model.Node). Read this [guide](https://prosemirror.net/docs/guide/#doc) for understanding               |
+| value                 | Controlled React Component: JSON-serializeable representation of a [node](https://prosemirror.net/docs/ref/#model.Node). Read this [guide](https://prosemirror.net/docs/guide/#doc) for understanding |
+| onChange              | Controlled React Component: Callback when the content has changed. For example: <br> `onChange={newContent => setContent(newContent)}`                                                                |  |
+| hashtags              | "immutable" - for immutable hashtags                                                                                                                                                                  |
+|                       | "mutable" - accepting any word prefixed by # as a hashtag                                                                                                                                             |
+| hashtagSuggestionList | Array of strings beginning with # to suggest                                                                                                                                                          |
+| multiline             | Allow multiline                                                                                                                                                                                       |
 
 ### Example:
 
