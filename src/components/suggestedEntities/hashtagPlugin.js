@@ -1,5 +1,10 @@
 import { Decoration, DecorationSet } from 'prosemirror-view'
-import { Plugin, PluginKey, NodeSelection } from 'prosemirror-state'
+import {
+  Plugin,
+  PluginKey,
+  TextSelection,
+  NodeSelection
+} from 'prosemirror-state'
 import {
   findAllHashtags,
   findHashtagUnderCursor,
@@ -36,6 +41,7 @@ const hashtagPlugin = new Plugin({
     decorations(editorState) {
       return this.getState(editorState)
     },
+
     handleDOMEvents: {
       keydown: (view, event) => {
         // In case of a multiline view, disable "Enter" key when hashtag is under construction to allow resolving hashtag via the "Enter" key.
@@ -48,16 +54,34 @@ const hashtagPlugin = new Plugin({
         }
       }
     },
+
+    // completes any selection to encompass any hashtag within it in its
     createSelectionBetween(view, anchor, head) {
       if (head.node(head.depth).type.name === HASHTAG_SCHEMA_NODE_TYPE) {
-        const hashtagSelection = NodeSelection.create(
-          view.state.doc,
-          head.before(head.depth)
+        // if the selection head is crossing an immutable hashtag
+
+        // change the head to
+        const newHead = head.doc.resolve(
+          anchor.pos >= head.pos // if the selection goes backwards
+            ? head.before(head.depth) // to the beginning of the hashtag
+            : head.after(head.depth) // or else - to the end of the hashtag.
         )
+
+        const newAnchor = // change the anchor of the selection
+          anchor.pos >= head.pos // if the selection goes backwards
+            ? anchor.doc.resolve(anchor.after(anchor.depth)) // to the end of the hashtag
+            : anchor // or else - keep it as it is.
+
+        const hashtagSelection = // create the selection
+          newHead.nodeAfter === newAnchor.nodeBefore // as a NodeSelection if the hashtag is the only element selected
+            ? new NodeSelection(newHead)
+            : new TextSelection(newAnchor, newHead) // or as a TextSelection in any other case
+
         return hashtagSelection
       }
     }
   },
+
   filterTransaction(transaction, editorState) {
     let changeInHashtag = false
     const editorHashtags = [],

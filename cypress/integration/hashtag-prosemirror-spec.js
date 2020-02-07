@@ -226,7 +226,7 @@ describe('hashtags', () => {
             win.getSelection().addRange(range)
           })
           // And confirm that the selection contains the whole immutable hashtag
-          expectSelectionToEqual('#office')
+          expectSelectionToEqual('o #office')
         })
       })
     })
