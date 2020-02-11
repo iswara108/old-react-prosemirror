@@ -9,6 +9,19 @@ function App() {
   const [devtools, setDevtools] = useState(false)
   const [editorView, setEditorView] = useState()
   const ref = React.createRef()
+  const [hashtagContent, setHashtagContent] = useState({
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          { type: 'text', text: 'here is a ' },
+          { type: 'hashtag', content: [{ type: 'text', text: '#hashtag' }] },
+          { type: 'text', text: ' ' }
+        ]
+      }
+    ]
+  })
   const [content, setContent] = useState({
     type: 'doc',
     content: [
@@ -48,6 +61,11 @@ function App() {
       setDevtools(true)
     }
   }, [content, editorView, devtools])
+
+  useEffect(() => {
+    console.info('hashtagContent')
+    console.info(JSON.stringify(hashtagContent))
+  }, [hashtagContent])
 
   return (
     <>
@@ -91,6 +109,19 @@ function App() {
         />
       )}
       <ReactProseMirror
+        id="prosemirror-hashtag-mutables-controlled"
+        label="Hastag Prosemirror Controlled"
+        hashtagSuggestionList={hashtagListDynamic}
+        hashtags="mutable"
+        multiline
+        onNewHashtag={hashtag =>
+          setHashtagListDynamic([...hashtagListDynamic, hashtag])
+        }
+        setEditorView={setEditorView}
+        value={hashtagContent}
+        onChange={c => setHashtagContent(c)}
+      />
+      <ReactProseMirror
         id="prosemirror-hashtag-mutables"
         label="Hastag Prosemirror"
         hashtagSuggestionList={hashtagListDynamic}
@@ -99,7 +130,6 @@ function App() {
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
-        setEditorView={setEditorView}
       />
     </>
   )

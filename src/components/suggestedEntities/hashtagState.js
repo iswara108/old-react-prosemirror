@@ -1,5 +1,5 @@
-import { useReducer, useEffect, useLayoutEffect } from 'react'
-import { EditorState, TextSelection } from 'prosemirror-state'
+import { useReducer, useEffect } from 'react'
+import { EditorState } from 'prosemirror-state'
 import useDefaultProseState from '../base/defaultProseState'
 import hashtagSchema from './hashtagSchema'
 import hashtagPlugin from './hashtagPlugin'
@@ -13,13 +13,14 @@ import {
 } from './hashtagSuggestionsRecuder'
 
 function useHashtagProseState({
-  focusViewHook,
+  value,
   onChange,
-  initialContent,
+  defaultValue,
   multiline,
   disableMarks,
   disableEdit,
   hashtagSuggestionList,
+  focusViewHook,
   onNewHashtag,
   hashtagsType
 }) {
@@ -27,9 +28,10 @@ function useHashtagProseState({
 
   // create default editorState
   const [editorState, setEditorState] = useDefaultProseState({
-    schema,
+    value,
     onChange,
-    initialContent,
+    defaultValue,
+    schema,
     multiline,
     disableMarks,
     disableEdit,
@@ -99,27 +101,6 @@ function useHashtagProseState({
     // Add new selection into the global list of hashtags
     if (selectedIndex === -1) onNewHashtag(newHashtagText)
   }
-
-  useLayoutEffect(() => {
-    if (!editorState) return
-
-    // TODO: find another solution - perhaps - confirming there is a whitespace after the end of the hashtag and only then moving the cursor after the whitespace.
-    if (
-      editorState.selection.$cursor &&
-      editorState.selection.$cursor.nodeBefore &&
-      editorState.selection.$cursor.nodeBefore.type.name ===
-        HASHTAG_SCHEMA_NODE_TYPE
-    ) {
-      const newSelection = TextSelection.create(
-        editorState.doc,
-        editorState.selection.$cursor.pos + 1
-      )
-
-      const transaction = editorState.tr
-      transaction.setSelection(newSelection)
-      setEditorState(editorState.apply(transaction))
-    }
-  }, [editorState, setEditorState])
 
   return [editorState, optionsState, dispatchOptionsChange, resolveHashtag]
 }

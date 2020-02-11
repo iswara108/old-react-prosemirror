@@ -175,7 +175,7 @@ describe('hashtags', () => {
           expectSelectionToEqual('')
         })
 
-        it('walk around a resolved hashtag - challenge end of hashtag - simple', () => {
+        it.skip('walk around a resolved hashtag - challenge end of hashtag - simple', () => {
           cy.get('#prosemirror-hashtag-immutables').type(
             'Go to #off{enter}{leftArrow}{rightArrow}'
           )
