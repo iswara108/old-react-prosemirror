@@ -55,6 +55,17 @@ const hashtagPlugin = new Plugin({
       }
     },
 
+    // If a text is input on the borders of the immutable hashtag - insert as plain text.
+    handleTextInput(view, from, to, text) {
+      if (
+        view.state.doc.resolve(from).parent.type.name ===
+        HASHTAG_SCHEMA_NODE_TYPE
+      ) {
+        view.dispatch(view.state.tr.insertText(text))
+        return true
+      }
+    },
+
     // completes any selection to encompass any hashtag within it in its
     createSelectionBetween(view, anchor, head) {
       if (head.node(head.depth).type.name === HASHTAG_SCHEMA_NODE_TYPE) {
@@ -73,6 +84,8 @@ const hashtagPlugin = new Plugin({
             : anchor // or else - keep it as it is.
 
         const hashtagSelection = // create the selection
+          newHead.nodeAfter &&
+          newAnchor.nodeBefore &&
           newHead.nodeAfter === newAnchor.nodeBefore // as a NodeSelection if the hashtag is the only element selected
             ? new NodeSelection(newHead)
             : new TextSelection(newAnchor, newHead) // or as a TextSelection in any other case

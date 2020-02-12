@@ -147,18 +147,18 @@ describe('hashtags', () => {
           expectSelectionToEqual('#office')
         })
 
-        it.skip('type multiple "leftArrow"s when hashtag in the beginning', () => {
+        it('type multiple "leftArrow"s when hashtag in the beginning', () => {
           cy.get('#prosemirror-hashtag-immutables').type(
-            '#reading{enter} something{home}{leftArrow}{leftArrow}{leftArrow}'
+            '#reading{enter}something{home}{leftArrow}{leftArrow}{leftArrow}'
           )
           expectSelectionToEqual('')
 
           cy.get('#prosemirror-hashtag-immutables')
             .type('think of ')
             .invoke('text')
-            .should(equal('think of #reading something'))
+            .should('equal', 'think of #reading something')
 
-          cy.contains('#reading').should('have.class', 'hashtag')
+          cy.contains('#reading').should('have.prop', 'tagName', 'hashtag'.toUpperCase())
           cy.contains('think of ').should('not.have.class', 'hashtag')
         })
 
@@ -175,7 +175,7 @@ describe('hashtags', () => {
           expectSelectionToEqual('')
         })
 
-        it.skip('walk around a resolved hashtag - challenge end of hashtag - simple', () => {
+        it('walk around a resolved hashtag - challenge end of hashtag - simple', () => {
           cy.get('#prosemirror-hashtag-immutables').type(
             'Go to #off{enter}{leftArrow}{rightArrow}'
           )
@@ -184,7 +184,7 @@ describe('hashtags', () => {
           cy.get('#prosemirror-hashtag-immutables')
             .type('a')
             .invoke('text')
-            .should('equal', 'Go to #office a')
+            .should('contain', 'Go to #officea')
 
           // Test that the hashtag has not changed
           cy.contains('#office')
@@ -192,7 +192,7 @@ describe('hashtags', () => {
             .should('equal', '#office')
         })
 
-        it.skip('walk around a resolved hashtag - challenge end of hashtag - more right and left keys', () => {
+        it('walk around a resolved hashtag - challenge end of hashtag - more right and left keys', () => {
           cy.get('#prosemirror-hashtag-immutables').type(
             'Go to #off{enter}{backspace}{leftArrow}{leftArrow}{leftArrow}{rightArrow}{rightArrow}{rightArrow}{rightArrow}'
           )
@@ -201,7 +201,7 @@ describe('hashtags', () => {
           cy.get('#prosemirror-hashtag-immutables')
             .type('a')
             .invoke('text')
-            .should('equal', 'Go to #office a')
+            .should('equal', 'Go to #officea')
 
           // Test that the hashtag has not changed
           cy.contains('#office')
