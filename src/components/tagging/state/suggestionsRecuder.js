@@ -1,28 +1,28 @@
 import deburr from 'lodash/deburr'
 
-const MOVE_TO_NEXT_HASHTAG = 'MOVE_TO_NEXT_HASHTAG'
-const MOVE_TO_PREV_HASHTAG = 'MOVE_TO_PREV_HASHTAG'
+const MOVE_TO_NEXT_SUGGESTION = 'MOVE_TO_NEXT_SUGGESTION'
+const MOVE_TO_PREV_SUGGESTION = 'MOVE_TO_PREV_SUGGESTION'
 const SET_HIGHLIGHT_INDEX = 'SET_HIGHLIGHT_INDEX'
-const SET_HASHTAG_UNDER_CONSTRUCTION = 'SET_HASHTAG_UNDER_CONSTRUCTION'
-const CLOSE_HASHTAG_OPTIONS = 'CLOSE_HASHTAG_OPTIONS'
+const SET_EDITING_TAG = 'SET_EDITING_TAG'
+const CLOSE_TAG_SUGGESTIONS = 'CLOSE_TAG_SUGGESTIONS'
 
 // Get relevant suggestions for the given hashtag under construction.
-function getRelevantSuggestions(value = '', hashtagSuggestionList = []) {
+function getRelevantSuggestions(value = '', hashtagSuggestions = []) {
   const inputValue = deburr(value.trim()).toLowerCase()
   const inputLength = inputValue.length
   return inputLength === 0
     ? []
-    : hashtagSuggestionList.filter(
+    : hashtagSuggestions.filter(
         suggestion =>
           suggestion.slice(0, inputLength).toLowerCase() === inputValue
       )
 }
 
 // Reducer for the suggestionsState, which contains the state of the suggestions being displayed.
-function suggestionsStateReducer(hashtagSuggestionList, state, action) {
+function suggestionsStateReducer(hashtagSuggestions, state, action) {
   switch (action.type) {
     // move highlight index downward as long as it doesn't reach the end of the suggestions
-    case MOVE_TO_NEXT_HASHTAG:
+    case MOVE_TO_NEXT_SUGGESTION:
       return {
         ...state,
         highlightIndex:
@@ -30,9 +30,9 @@ function suggestionsStateReducer(hashtagSuggestionList, state, action) {
             ? state.highlightIndex + 1
             : state.highlightIndex
       }
-    case CLOSE_HASHTAG_OPTIONS:
+    case CLOSE_TAG_SUGGESTIONS:
       return {}
-    case MOVE_TO_PREV_HASHTAG:
+    case MOVE_TO_PREV_SUGGESTION:
       // move highlight index upward as long as it doesn't reach the beginning of the suggestions
       return {
         ...state,
@@ -48,15 +48,15 @@ function suggestionsStateReducer(hashtagSuggestionList, state, action) {
           ? action.payload.index
           : state.highlightIndex
       }
-    case SET_HASHTAG_UNDER_CONSTRUCTION:
+    case SET_EDITING_TAG:
       if (!action.payload) return {} // if there is no hashtag under construction - do not display selections
       const suggestionList = getRelevantSuggestions(
         action.payload.value,
-        hashtagSuggestionList
+        hashtagSuggestions
       )
 
       return {
-        hashtagUnderConstruction: action.payload,
+        currentEditingTag: action.payload,
         suggestionList,
         highlightIndex: suggestionList.length // set the highlight index according to its previous state upon opening the suggestion list:
           ? Math.min(
@@ -74,9 +74,9 @@ function suggestionsStateReducer(hashtagSuggestionList, state, action) {
 
 export {
   suggestionsStateReducer,
-  MOVE_TO_NEXT_HASHTAG,
-  MOVE_TO_PREV_HASHTAG,
+  MOVE_TO_NEXT_SUGGESTION,
+  MOVE_TO_PREV_SUGGESTION,
   SET_HIGHLIGHT_INDEX,
-  CLOSE_HASHTAG_OPTIONS,
-  SET_HASHTAG_UNDER_CONSTRUCTION
+  CLOSE_TAG_SUGGESTIONS,
+  SET_EDITING_TAG
 }

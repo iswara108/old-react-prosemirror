@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import applyDevTools from 'prosemirror-dev-tools'
 
 import ReactProseMirror from './components/ReactProseMirror'
+import { HASHTAG_SCHEMA_NODE_TYPE } from './components/tagging/model/taggingUtils'
 
 function App() {
   const [hashtagListFixture, setHashtagListFixture] = useState()
@@ -16,7 +17,10 @@ function App() {
         type: 'paragraph',
         content: [
           { type: 'text', text: 'here is a ' },
-          { type: 'hashtag', content: [{ type: 'text', text: '#hashtag' }] },
+          {
+            type: HASHTAG_SCHEMA_NODE_TYPE,
+            content: [{ type: 'text', text: '#hashtag' }]
+          },
           { type: 'text', text: ' ' }
         ]
       }
@@ -100,8 +104,8 @@ function App() {
         <ReactProseMirror
           id="prosemirror-hashtag-immutables"
           label="Hastag Prosemirror"
-          hashtagSuggestionList={hashtagListFixture}
-          hashtags="immutable"
+          hashtagSuggestions={hashtagListFixture}
+          tags="immutable"
           multiline
           onNewHashtag={hashtag =>
             setHashtagListFixture([...hashtagListFixture, hashtag])
@@ -111,8 +115,8 @@ function App() {
       <ReactProseMirror
         id="prosemirror-hashtag-mutables-controlled"
         label="Hastag Prosemirror Controlled"
-        hashtagSuggestionList={hashtagListDynamic}
-        hashtags="mutable"
+        hashtagSuggestions={hashtagListDynamic}
+        tags="mutable"
         multiline
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
@@ -124,8 +128,8 @@ function App() {
       <ReactProseMirror
         id="prosemirror-hashtag-mutables"
         label="Hastag Prosemirror"
-        hashtagSuggestionList={hashtagListDynamic}
-        hashtags="mutable"
+        hashtagSuggestions={hashtagListDynamic}
+        tags="mutable"
         multiline
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])

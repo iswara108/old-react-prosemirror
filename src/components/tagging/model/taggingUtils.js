@@ -1,6 +1,8 @@
-import Tokenizer from '../../utils/text/tokenizer'
-const HASHTAG_SCHEMA_NODE_TYPE = 'hashtag'
+import Tokenizer from '../../../utils/text/tokenizer'
+const HASHTAG_SCHEMA_NODE_TYPE = 'hashtagMention'
+const PERSON_SCHEMA_NODE_TYPE = 'personMention'
 
+// This function takes a node with taggingSchema and returns an object with an array of all hashtags and an array of all mentions
 const getTokens = doc => {
   let tokens = { hashtags: [], mentions: [] }
 
@@ -30,7 +32,7 @@ const getTokens = doc => {
 //  end: Number,
 //  value: String
 // }
-const findHashtagUnderCursor = (doc, selection) => {
+const findEditingTag = (doc, selection) => {
   const tokens = getTokens(doc)
   const lowestSelection = Math.min(selection.anchor, selection.head)
   const highestSelection = Math.max(selection.anchor, selection.head)
@@ -46,4 +48,4 @@ const findAllHashtags = doc => {
   return getTokens(doc).hashtags
 }
 
-export { findHashtagUnderCursor, findAllHashtags, HASHTAG_SCHEMA_NODE_TYPE }
+export { findEditingTag, findAllHashtags, HASHTAG_SCHEMA_NODE_TYPE }

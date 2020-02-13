@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default ({
+const SelectSuggestion = ({
   inputValue,
   suggestionList,
   highlightIndex,
@@ -32,7 +32,7 @@ export default ({
   const selectedItem = undefined
 
   return (
-    <div className={classes.root + ' select-hashtags'}>
+    <div className={classes.root + ' select-suggestions'}>
       <div className={classes.container}>
         <div>
           <Paper className={classes.paper} square>
@@ -67,3 +67,5 @@ export default ({
     </div>
   )
 }
+
+export default SelectSuggestion

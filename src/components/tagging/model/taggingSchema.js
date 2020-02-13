@@ -1,9 +1,9 @@
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
-import { HASHTAG_SCHEMA_NODE_TYPE } from './hashtagUtils'
+import { HASHTAG_SCHEMA_NODE_TYPE } from './taggingUtils'
 
 // create the schema specs for an editor with hashtags.
-export default function hashtagSchema(multiline, disableMarks) {
+export default function taggingSchema(multiline, disableMarks) {
   const schema = new Schema({
     nodes: schemaBasic.spec.nodes
       .addBefore('text', HASHTAG_SCHEMA_NODE_TYPE, {
@@ -11,8 +11,8 @@ export default function hashtagSchema(multiline, disableMarks) {
         atom: true,
         content: 'text*',
         inline: true,
-        toDOM: node => [HASHTAG_SCHEMA_NODE_TYPE, 0],
-        parseDOM: [{ tag: HASHTAG_SCHEMA_NODE_TYPE }],
+        toDOM: node => ['hashtag', 0],
+        parseDOM: [{ tag: 'hashtag' }],
         selectable: true,
         draggable: true
       })

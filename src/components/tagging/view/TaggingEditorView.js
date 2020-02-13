@@ -1,10 +1,12 @@
 import React from 'react'
-import ProseView from '../base/ProseView'
-import SelectHashtags from './SelectHashtags'
-import useHashtagProseState from './hashtagState'
-import * as actionTypes from './hashtagSuggestionsRecuder'
+import ProseView from '../../base/ProseView'
+import SelectSuggestion from './SelectSuggestion'
+import useTaggingEditorState from '../state/taggingEditorState'
+import * as actionTypes from '../state/suggestionsRecuder'
+import handleKeyOnSuggestions from '../state/handleKeyOnSuggestions'
+import './tagging.css'
 
-const HashtagView = React.forwardRef((props, parentRef) => {
+const TaggingEditorView = React.forwardRef((props, parentRef) => {
   const {
     id,
     defaultValue,
@@ -15,9 +17,11 @@ const HashtagView = React.forwardRef((props, parentRef) => {
     autoFocus = false,
     disableEdit = false,
     setEditorView,
-    hashtagSuggestionList = [],
-    hashtags: hashtagsType,
-    onNewHashtag
+    hashtagSuggestions = [],
+    tags,
+    onNewHashtag,
+    people = [],
+    onNewPerson
   } = props
 
   const contentEditableDom = React.createRef()
@@ -30,41 +34,25 @@ const HashtagView = React.forwardRef((props, parentRef) => {
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
-    resolveHashtag
-  ] = useHashtagProseState({
+    resolveMention
+  ] = useTaggingEditorState({
     defaultValue,
-    value,
     onChange,
     multiline,
     disableMarks,
     disableEdit,
-    hashtagSuggestionList,
+    hashtagSuggestions,
     onNewHashtag,
     focusViewHook,
-    hashtagsType
+    tags
   })
 
-  // Handle moving up/down and selecting hashtags.
-  const handleKeyDown = e => {
-    if (isNaN(suggestionsState.highlightIndex)) return
-
-    switch (e.key) {
-      case 'ArrowDown':
-        dispatchSuggestionsChange({ type: actionTypes.MOVE_TO_NEXT_HASHTAG })
-        e.preventDefault()
-        break
-      case 'ArrowUp':
-        dispatchSuggestionsChange({ type: actionTypes.MOVE_TO_PREV_HASHTAG })
-        e.preventDefault()
-        break
-      case 'Enter':
-        dispatchSuggestionsChange({ type: actionTypes.CLOSE_HASHTAG_OPTIONS })
-        resolveHashtag()
-        e.preventDefault()
-        break
-      default:
-    }
-  }
+  // Handle moving up/down and selecting mentions.
+  const handleKeyDown = handleKeyOnSuggestions(
+    suggestionsState,
+    dispatchSuggestionsChange,
+    resolveMention
+  )
 
   const setHighlightIndex = index =>
     dispatchSuggestionsChange({
@@ -74,9 +62,9 @@ const HashtagView = React.forwardRef((props, parentRef) => {
 
   const setAsSelected = index => {
     dispatchSuggestionsChange({
-      type: actionTypes.CLOSE_HASHTAG_OPTIONS
+      type: actionTypes.CLOSE_TAG_SUGGESTIONS
     })
-    resolveHashtag(index)
+    resolveMention(index)
   }
 
   return (
@@ -90,8 +78,8 @@ const HashtagView = React.forwardRef((props, parentRef) => {
         ref={contentEditableDom}
       />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
-        <SelectHashtags
-          inputValue={suggestionsState.hashtagUnderConstruction.value}
+        <SelectSuggestion
+          inputValue={suggestionsState.currentEditingTag.value}
           highlightIndex={suggestionsState.highlightIndex || 0}
           setHighlightIndex={setHighlightIndex}
           setAsSelected={setAsSelected}
@@ -102,4 +90,4 @@ const HashtagView = React.forwardRef((props, parentRef) => {
   )
 })
 
-export default HashtagView
+export default TaggingEditorView

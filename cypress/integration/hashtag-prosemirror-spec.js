@@ -17,7 +17,7 @@ describe('hashtags', () => {
             .should('equal', text)
 
           hashtags.forEach(hashtag => {
-            cy.contains(hashtag).should('have.class', 'hashtag')
+            cy.contains(hashtag).should('have.class', 'editing-hashtag')
           })
         })
       }
@@ -89,7 +89,7 @@ describe('hashtags', () => {
       it('resolves hashtag second option using keyboard - create new hashtag', () => {
         cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #some')
 
-        cy.get('.select-hashtags').within(() => {
+        cy.get('.select-suggestions').within(() => {
           cy.contains('somewhere-else').should('not.be.visible')
         })
 
@@ -98,7 +98,7 @@ describe('hashtags', () => {
           .should('contain', 'Do paperwork #somewhere-else')
 
         cy.get('#prosemirror-hashtag-immutables').type(' #')
-        cy.get('.select-hashtags').within(() => {
+        cy.get('.select-suggestions').within(() => {
           cy.contains('somewhere-else')
         })
       })
@@ -107,7 +107,7 @@ describe('hashtags', () => {
     describe('suggestions highlighting', () => {
       it('highlights options according to mouse moves', () => {
         cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #')
-        cy.get('.select-hashtags').within(() => {
+        cy.get('.select-suggestions').within(() => {
           cy.contains('computer')
             .trigger('mousemove')
             .should('have.class', 'Mui-selected')
@@ -121,13 +121,13 @@ describe('hashtags', () => {
 
       it('shows and hides selection upon entering and leaving hashtag', () => {
         cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #off')
-        cy.get('.select-hashtags')
+        cy.get('.select-suggestions')
           .should('be.visible')
           .within(() => {
             cy.contains('office').should('be.visible')
           })
         cy.get('#prosemirror-hashtag-immutables').type(' ')
-        cy.get('.select-hashtags').should('not.be.visible')
+        cy.get('.select-suggestions').should('not.be.visible')
       })
     })
 
@@ -158,8 +158,12 @@ describe('hashtags', () => {
             .invoke('text')
             .should('equal', 'think of #reading something')
 
-          cy.contains('#reading').should('have.prop', 'tagName', 'hashtag'.toUpperCase())
-          cy.contains('think of ').should('not.have.class', 'hashtag')
+          cy.contains('#reading').should(
+            'have.prop',
+            'tagName',
+            'hashtag'.toUpperCase()
+          )
+          cy.contains('think of ').should('not.have.class', 'editing-hashtag')
         })
 
         it('walk around a resolved hashtag', () => {
@@ -235,12 +239,12 @@ describe('hashtags', () => {
       cy.get('#prosemirror-hashtag-mutables')
         .type('good #after noon')
         .within(() => {
-          cy.contains('after').should('have.class', 'hashtag')
+          cy.contains('after').should('have.class', 'editing-hashtag')
         })
       cy.get('#prosemirror-hashtag-immutables')
         .type('good #after noon')
         .within(() => {
-          cy.contains('after').should('not.have.class', 'hashtag')
+          cy.contains('after').should('not.have.class', 'editing-hashtag')
         })
     })
   })
