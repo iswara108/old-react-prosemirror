@@ -4,8 +4,13 @@ import { EditorState } from 'prosemirror-state'
 import useDefaultProseState from '../../base/defaultProseState'
 import taggingSchema from '../model/taggingSchema'
 import hashtagPlugin from './hashtagPlugin'
+import mentionPlugin from './mentionPlugin'
 import createImmutableNodePlugin from './immutableNodePlugin'
-import { HASHTAG_SCHEMA_NODE_TYPE, findEditingTag } from '../model/taggingUtils'
+import {
+  HASHTAG_SCHEMA_NODE_TYPE,
+  MENTION_SCHEMA_NODE_TYPE,
+  findEditingTag
+} from '../model/taggingUtils'
 import { suggestionsStateReducer, SET_EDITING_TAG } from './suggestionsRecuder'
 
 function useTaggingEditorState({
@@ -33,7 +38,9 @@ function useTaggingEditorState({
     disableEdit,
     plugins: [
       hashtagPlugin,
-      createImmutableNodePlugin(HASHTAG_SCHEMA_NODE_TYPE)
+      mentionPlugin,
+      createImmutableNodePlugin(HASHTAG_SCHEMA_NODE_TYPE),
+      createImmutableNodePlugin(MENTION_SCHEMA_NODE_TYPE)
     ]
   })
 

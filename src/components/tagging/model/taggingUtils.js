@@ -1,21 +1,38 @@
 import Tokenizer from '../../../utils/text/tokenizer'
 const HASHTAG_SCHEMA_NODE_TYPE = 'hashtagMention'
-const PERSON_SCHEMA_NODE_TYPE = 'personMention'
+const MENTION_SCHEMA_NODE_TYPE = 'personMention'
 
 // This function takes a node with taggingSchema and returns an object with an array of all hashtags and an array of all mentions
 const getTokens = doc => {
   let tokens = { hashtags: [], mentions: [] }
 
   doc.descendants((node, pos, parent) => {
-    // do not consider resolved hashtag nodes.
-    if (parent.type.name === HASHTAG_SCHEMA_NODE_TYPE) return false // do not recurse over children of a resolved hashtag
-    if (!node.isText || node.type.name === HASHTAG_SCHEMA_NODE_TYPE) return // only handle text nodes which might have a token
+    // do not consider resolved tag nodes.
+    if (
+      parent.type.name === HASHTAG_SCHEMA_NODE_TYPE ||
+      parent.type.name === MENTION_SCHEMA_NODE_TYPE
+    )
+      return false // do not recurse over children of a resolved hashtag
 
-    const token = Tokenizer(node.text)
-    token.hashtags = token.hashtags.map(hashtag => ({
+    if (
+      !node.isText ||
+      node.type.name === HASHTAG_SCHEMA_NODE_TYPE ||
+      node.type.name === MENTION_SCHEMA_NODE_TYPE
+    )
+      return // only handle text nodes which might have a token
+
+    const tokenizer = Tokenizer(node.text)
+
+    const token = {}
+    token.hashtags = tokenizer.hashtags.map(hashtag => ({
       start: hashtag.start + pos - 1,
       end: hashtag.end + pos - 1,
       value: hashtag.value
+    }))
+    token.mentions = tokenizer.mentions.map(mention => ({
+      start: mention.start + pos - 1,
+      end: mention.end + pos - 1,
+      value: mention.value
     }))
 
     tokens = {
@@ -48,4 +65,14 @@ const findAllHashtags = doc => {
   return getTokens(doc).hashtags
 }
 
-export { findEditingTag, findAllHashtags, HASHTAG_SCHEMA_NODE_TYPE }
+const findAllMentions = doc => {
+  return getTokens(doc).mentions
+}
+
+export {
+  findEditingTag,
+  findAllHashtags,
+  findAllMentions,
+  HASHTAG_SCHEMA_NODE_TYPE,
+  MENTION_SCHEMA_NODE_TYPE
+}

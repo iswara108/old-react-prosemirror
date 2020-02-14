@@ -34,8 +34,9 @@ Hashtag.parse = function(start, text) {
 
   var value = '#'
   var i = start
+
   for (i; i < text.length; i++) {
-    if (new XRegExp('^[#\\pL-]+$').test(text[i])) {
+    if (new XRegExp('^[#\\pL0-9-]+$').test(text[i])) {
       value += text[i]
     } else {
       break

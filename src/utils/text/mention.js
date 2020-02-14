@@ -1,4 +1,5 @@
-import Token from "./token"
+import XRegExp from 'xregexp'
+import Token from './token'
 
 /**
  * Mention Token.
@@ -28,22 +29,22 @@ Mention.prototype = Object.create(Token.prototype, {
  *   was found.
  */
 Mention.parse = function(start, text) {
-  if (text[start] !== "@") {
+  if (text[start] !== '@') {
     return start
   }
 
-  var value = "@"
-  var i = start + 1
+  var value = '@'
+  var i = start
 
   for (i; i < text.length; i++) {
-    if (/^[a-z0-9_-]+$/i.test(text[i])) {
+    if (new XRegExp('^[@\\pL0-9-]+$').test(text[i])) {
       value += text[i]
     } else {
       break
     }
   }
 
-  if (value.length >= 4) {
+  if (value.length >= 1) {
     return new Mention(start, value)
   }
 

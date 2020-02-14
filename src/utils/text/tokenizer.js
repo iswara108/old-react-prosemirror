@@ -25,6 +25,7 @@ export default text => {
       }
     } else if (text[i] === '@') {
       var mention = Mention.parse(i, text)
+      mention.value = mention.value.slice(1)
 
       if (typeof mention !== 'number') {
         i = mention.end
