@@ -5,19 +5,33 @@ import TaggingEditorView from './tagging/view/TaggingEditorView'
 import ProseDefaultView from './base/ProseDefaultView'
 
 const ReactProseMirror = React.forwardRef((props, ref) => {
-  const { tags, hashtagSuggestions = [], peopleSuggestionList = [] } = props
+  const { tags, hashtagSuggestions = [], mentionSuggestions = [] } = props
 
   return tags ? (
     <TaggingEditorView
       {...props}
       hashtagSuggestions={hashtagSuggestions}
-      peopleSuggestionList={peopleSuggestionList}
+      mentionSuggestions={mentionSuggestions}
       ref={ref}
     />
   ) : (
     <ProseDefaultView ref={ref} {...props} />
   )
 })
+
+function checkForTagName(
+  propValue,
+  key,
+  componentName,
+  location,
+  propFullName
+) {
+  if (!propValue[key].tagName) {
+    return new Error(
+      `Invalid prop '${propFullName}' supplied to 'ReactProseMirror'. Missing property 'tagName'`
+    )
+  }
+}
 
 ReactProseMirror.propTypes = {
   id: PropTypes.string,
@@ -26,7 +40,8 @@ ReactProseMirror.propTypes = {
     //'mutable', // not supported at the moment
     'immutable'
   ]),
-  hashtagSuggestions: PropTypes.array,
+  hashtagSuggestions: PropTypes.arrayOf(checkForTagName),
+  mentionSuggestions: PropTypes.arrayOf(checkForTagName),
   multiline: PropTypes.bool
 }
 

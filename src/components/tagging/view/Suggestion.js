@@ -16,10 +16,10 @@ function Suggestion({
   const isSelected = (selectedItem || '').indexOf(suggestion) > -1
 
   const [setToMyIndex] = useDebouncedCallback(() => setHighlightIndex(index), 5)
+
   return (
     <MenuItem
       {...itemProps}
-      key={suggestion}
       selected={isHighlighted}
       component="div"
       style={{
@@ -30,7 +30,18 @@ function Suggestion({
       }}
       onClick={() => setAsSelected(index)}
     >
-      {suggestion}
+      {suggestion.displayName ? (
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <img
+            style={{ width: '50px', marginRight: '10px' }}
+            src={suggestion.avatarURL}
+            alt={suggestion.displayName}
+          />
+          <p>{suggestion.displayName}</p>
+        </div>
+      ) : (
+        suggestion.tagName
+      )}
     </MenuItem>
   )
 }
@@ -43,7 +54,7 @@ Suggestion.propTypes = {
   index: PropTypes.number.isRequired,
   itemProps: PropTypes.object.isRequired,
   selectedItem: PropTypes.string.isRequired,
-  suggestion: PropTypes.string.isRequired
+  suggestion: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
 }
 
 export default Suggestion

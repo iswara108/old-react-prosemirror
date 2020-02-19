@@ -5,8 +5,9 @@ import ReactProseMirror from './components/ReactProseMirror'
 import { HASHTAG_SCHEMA_NODE_TYPE } from './components/tagging/model/taggingUtils'
 
 function App() {
-  const [hashtagListFixture, setHashtagListFixture] = useState()
+  const [hashtagListFixture, setHashtagListFixture] = useState([])
   const [hashtagListDynamic, setHashtagListDynamic] = useState([])
+  const [mentionListFixture, setMentionListFixture] = useState([])
   const [devtools, setDevtools] = useState(false)
   const [editorView, setEditorView] = useState()
   const ref = React.createRef()
@@ -55,9 +56,13 @@ function App() {
   }, [])
 
   useEffect(() => {
-    console.info(JSON.stringify(content, undefined, 2))
-    console.info(ref && ref.current && ref.current.innerHTML)
-  }, [content, ref])
+    setMentionListFixture(window.mentionListFixture)
+  }, [])
+
+  // useEffect(() => {
+  //   console.info(JSON.stringify(content, undefined, 2))
+  //   console.info(ref && ref.current && ref.current.innerHTML)
+  // }, [content, ref])
 
   useEffect(() => {
     if (content && editorView && !devtools) {
@@ -66,10 +71,10 @@ function App() {
     }
   }, [content, editorView, devtools])
 
-  useEffect(() => {
-    console.info('hashtagContent')
-    console.info(JSON.stringify(hashtagContent))
-  }, [hashtagContent])
+  // useEffect(() => {
+  //   console.info('hashtagContent')
+  //   console.info(JSON.stringify(hashtagContent))
+  // }, [hashtagContent])
 
   return (
     <>
@@ -100,23 +105,33 @@ function App() {
         ref={ref}
       />
       <ReactProseMirror id="prosemirror-singleline" label="description" />
-      {hashtagListFixture && (
+      {(hashtagListFixture || mentionListFixture) && (
         <ReactProseMirror
-          id="prosemirror-hashtag-immutables"
+          id="tagging-immutable-hashtags-with-fixture"
           label="Hastag Prosemirror"
-          hashtagSuggestions={hashtagListFixture}
+          hashtagSuggestions={
+            hashtagListFixture &&
+            hashtagListFixture.map(hashtag => ({
+              tagName: hashtag
+            }))
+          }
+          mentionSuggestions={mentionListFixture}
           tags="immutable"
           multiline
-          onNewHashtag={hashtag =>
-            setHashtagListFixture([...hashtagListFixture, hashtag])
-          }
+          onNewHashtag={hashtag => {
+            if (hashtagListFixture)
+              setHashtagListFixture([...hashtagListFixture, hashtag])
+            else setHashtagListFixture([hashtag])
+          }}
         />
       )}
       <ReactProseMirror
-        id="prosemirror-hashtag-mutables-controlled"
+        id="tagging-immutable-hashtags-controlled"
         label="Hastag Prosemirror Controlled"
-        hashtagSuggestions={hashtagListDynamic}
-        tags="mutable"
+        hashtagSuggestions={hashtagListDynamic.map(hashtag => ({
+          tagName: hashtag
+        }))}
+        tags="immutable"
         multiline
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
@@ -126,14 +141,17 @@ function App() {
         onChange={c => setHashtagContent(c)}
       />
       <ReactProseMirror
-        id="prosemirror-hashtag-mutables"
-        label="Hastag Prosemirror"
-        hashtagSuggestions={hashtagListDynamic}
-        tags="mutable"
+        id="tagging-immutable-hashtags-uncontrolled"
+        label="Hastag Prosemirror Uncontrolled"
+        hashtagSuggestions={hashtagListDynamic.map(hashtag => ({
+          tagName: hashtag
+        }))}
+        tags="immutable"
         multiline
         onNewHashtag={hashtag =>
           setHashtagListDynamic([...hashtagListDynamic, hashtag])
         }
+        setEditorView={setEditorView}
       />
     </>
   )

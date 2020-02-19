@@ -1,6 +1,6 @@
 import React from 'react'
 import ProseView from '../../base/ProseView'
-import SelectSuggestion from './SelectSuggestion'
+import SuggestionDropdown from './SuggestionDropdown'
 import useTaggingEditorState from '../state/taggingEditorState'
 import * as actionTypes from '../state/suggestionsRecuder'
 import handleKeyOnSuggestions from '../state/handleKeyOnSuggestions'
@@ -18,10 +18,9 @@ const TaggingEditorView = React.forwardRef((props, parentRef) => {
     disableEdit = false,
     setEditorView,
     hashtagSuggestions = [],
+    mentionSuggestions = [],
     tags,
-    onNewHashtag,
-    people = [],
-    onNewPerson
+    onNewHashtag
   } = props
 
   const contentEditableDom = React.createRef()
@@ -34,14 +33,16 @@ const TaggingEditorView = React.forwardRef((props, parentRef) => {
     editorState,
     suggestionsState,
     dispatchSuggestionsChange,
-    resolveMention
+    resolveTag
   ] = useTaggingEditorState({
     defaultValue,
+    value,
     onChange,
     multiline,
     disableMarks,
     disableEdit,
     hashtagSuggestions,
+    mentionSuggestions,
     onNewHashtag,
     focusViewHook,
     tags
@@ -51,7 +52,7 @@ const TaggingEditorView = React.forwardRef((props, parentRef) => {
   const handleKeyDown = handleKeyOnSuggestions(
     suggestionsState,
     dispatchSuggestionsChange,
-    resolveMention
+    resolveTag
   )
 
   const setHighlightIndex = index =>
@@ -64,11 +65,11 @@ const TaggingEditorView = React.forwardRef((props, parentRef) => {
     dispatchSuggestionsChange({
       type: actionTypes.CLOSE_TAG_SUGGESTIONS
     })
-    resolveMention(index)
+    resolveTag(index)
   }
 
   return (
-    <>
+    <div>
       <ProseView
         id={id}
         editorState={editorState}
@@ -76,17 +77,27 @@ const TaggingEditorView = React.forwardRef((props, parentRef) => {
         autoFocus={autoFocus}
         setEditorView={setEditorView}
         ref={contentEditableDom}
+        onBlur={e =>
+          setTimeout(
+            () =>
+              dispatchSuggestionsChange({
+                type: actionTypes.CLOSE_TAG_SUGGESTIONS
+              }),
+            200 // allow actions suggestion dropdown before closing (such as mouse click to resolve a suggestion)
+          )
+        }
       />
       {dispatchSuggestionsChange && !isNaN(suggestionsState.highlightIndex) && (
-        <SelectSuggestion
+        <SuggestionDropdown
           inputValue={suggestionsState.currentEditingTag.value}
           highlightIndex={suggestionsState.highlightIndex || 0}
           setHighlightIndex={setHighlightIndex}
           setAsSelected={setAsSelected}
           suggestionList={suggestionsState.suggestionList}
+          readOnly={suggestionsState.suggestionType === 'mention'}
         />
       )}
-    </>
+    </div>
   )
 })
 

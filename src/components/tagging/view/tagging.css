@@ -15,12 +15,12 @@
 }
 
 hashtag {
-  background: rgb(214, 170, 170);
+  color: saddlebrown;
   /* margin-bottom: -1px; */
 }
 
 mention {
-  background: rgb(82, 245, 218);
+  color: dodgerblue;
 }
 
 .ProseMirror {

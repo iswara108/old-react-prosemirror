@@ -18,10 +18,10 @@ function handleKeyOnSuggestions(
         e.preventDefault()
         break
       case 'Enter':
+        resolveEditingTag()
         dispatchSuggestionsChange({
           type: actionTypes.CLOSE_TAG_SUGGESTIONS
         })
-        resolveEditingTag()
         e.preventDefault()
         break
       default:

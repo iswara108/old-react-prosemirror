@@ -8,10 +8,10 @@ describe('hashtags', () => {
       })
     })
 
-    describe('mutable hashtags dynamically created', () => {
+    describe('unresolved hashtags are highlighted', () => {
       const testColorDifference = (text, hashtags, description) => {
         it('color difference ' + description, () => {
-          cy.get('#prosemirror-hashtag-mutables')
+          cy.get('#tagging-immutable-hashtags-with-fixture')
             .type(text)
             .invoke('text')
             .should('equal', text)
@@ -56,49 +56,51 @@ describe('hashtags', () => {
 
     describe('resolve hashtags', () => {
       it('resolve hashtag suggestions using mouse click', () => {
-        cy.get('#prosemirror-hashtag-immutables').as('immutables')
+        cy.get('#tagging-immutable-hashtags-with-fixture').as('immutables')
         cy.get('@immutables').type('Do paperwork #of')
         cy.contains('#office').click()
         cy.get('@immutables').should('contain', 'Do paperwork #office')
       })
 
       it('resolves hashtag suggestions', () => {
-        cy.get('#prosemirror-hashtag-immutables')
+        cy.get('#tagging-immutable-hashtags-with-fixture')
           .type('Do paperwork #of{enter}')
           .should('contain', 'Do paperwork #office')
       })
 
       it('resolves hashtag second option using keyboard', () => {
-        cy.get('#prosemirror-hashtag-immutables')
+        cy.get('#tagging-immutable-hashtags-with-fixture')
           .type('Do paperwork #{DownArrow}{enter}')
           .should('contain', 'Do paperwork #computer')
       })
 
       it('resolves hashtag second option using keyboard - challenging bottom limit', () => {
-        cy.get('#prosemirror-hashtag-immutables')
+        cy.get('#tagging-immutable-hashtags-with-fixture')
           .type('Do paperwork #{DownArrow}{DownArrow}{enter}')
           .should('contain', 'Do paperwork #computer')
       })
 
       it('resolves hashtag second option using keyboard - challenging upper limit', () => {
-        cy.get('#prosemirror-hashtag-immutables')
+        cy.get('#tagging-immutable-hashtags-with-fixture')
           .type('Do paperwork #{UpArrow}{UpArrow}{UpArrow}{DownArrow}{enter}')
           .should('contain', 'Do paperwork #office')
       })
 
       it('resolves hashtag second option using keyboard - create new hashtag', () => {
-        cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #some')
+        cy.get('#tagging-immutable-hashtags-with-fixture').type(
+          'Do paperwork #some'
+        )
 
-        cy.get('.select-suggestions').within(() => {
+        cy.get('.suggestions-dropdown').within(() => {
           cy.contains('somewhere-else').should('not.be.visible')
         })
 
-        cy.get('#prosemirror-hashtag-immutables')
+        cy.get('#tagging-immutable-hashtags-with-fixture')
           .type('where-else{enter}')
           .should('contain', 'Do paperwork #somewhere-else')
 
-        cy.get('#prosemirror-hashtag-immutables').type(' #')
-        cy.get('.select-suggestions').within(() => {
+        cy.get('#tagging-immutable-hashtags-with-fixture').type(' #')
+        cy.get('.suggestions-dropdown').within(() => {
           cy.contains('somewhere-else')
         })
       })
@@ -106,8 +108,10 @@ describe('hashtags', () => {
 
     describe('suggestions highlighting', () => {
       it('highlights options according to mouse moves', () => {
-        cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #')
-        cy.get('.select-suggestions').within(() => {
+        cy.get('#tagging-immutable-hashtags-with-fixture').type(
+          'Do paperwork #'
+        )
+        cy.get('.suggestions-dropdown').within(() => {
           cy.contains('computer')
             .trigger('mousemove')
             .should('have.class', 'Mui-selected')
@@ -120,14 +124,16 @@ describe('hashtags', () => {
       })
 
       it('shows and hides selection upon entering and leaving hashtag', () => {
-        cy.get('#prosemirror-hashtag-immutables').type('Do paperwork #off')
-        cy.get('.select-suggestions')
+        cy.get('#tagging-immutable-hashtags-with-fixture').type(
+          'Do paperwork #off'
+        )
+        cy.get('.suggestions-dropdown')
           .should('be.visible')
           .within(() => {
             cy.contains('office').should('be.visible')
           })
-        cy.get('#prosemirror-hashtag-immutables').type(' ')
-        cy.get('.select-suggestions').should('not.be.visible')
+        cy.get('#tagging-immutable-hashtags-with-fixture').type(' ')
+        cy.get('.suggestions-dropdown').should('not.be.visible')
       })
     })
 
@@ -141,19 +147,19 @@ describe('hashtags', () => {
 
       describe('cursor selection', () => {
         it('click "leftArrow" when cursor is after hashtag', () => {
-          cy.get('#prosemirror-hashtag-immutables').type(
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
             'Go to #off{enter}{leftArrow}'
           )
           expectSelectionToEqual('#office')
         })
 
         it('type multiple "leftArrow"s when hashtag in the beginning', () => {
-          cy.get('#prosemirror-hashtag-immutables').type(
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
             '#reading{enter}something{home}{leftArrow}{leftArrow}{leftArrow}'
           )
           expectSelectionToEqual('')
 
-          cy.get('#prosemirror-hashtag-immutables')
+          cy.get('#tagging-immutable-hashtags-with-fixture')
             .type('think of ')
             .invoke('text')
             .should('equal', 'think of #reading something')
@@ -167,25 +173,29 @@ describe('hashtags', () => {
         })
 
         it('walk around a resolved hashtag', () => {
-          cy.get('#prosemirror-hashtag-immutables').type(
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
             'Go to #off{enter}{leftArrow}{leftArrow}'
           )
           expectSelectionToEqual('')
 
-          cy.get('#prosemirror-hashtag-immutables').type('{rightArrow}')
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
+            '{rightArrow}'
+          )
           expectSelectionToEqual('#office')
 
-          cy.get('#prosemirror-hashtag-immutables').type('{rightArrow}')
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
+            '{rightArrow}'
+          )
           expectSelectionToEqual('')
         })
 
         it('walk around a resolved hashtag - challenge end of hashtag - simple', () => {
-          cy.get('#prosemirror-hashtag-immutables').type(
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
             'Go to #off{enter}{leftArrow}{rightArrow}'
           )
           expectSelectionToEqual('')
 
-          cy.get('#prosemirror-hashtag-immutables')
+          cy.get('#tagging-immutable-hashtags-with-fixture')
             .type('a')
             .invoke('text')
             .should('contain', 'Go to #officea')
@@ -197,12 +207,12 @@ describe('hashtags', () => {
         })
 
         it('walk around a resolved hashtag - challenge end of hashtag - more right and left keys', () => {
-          cy.get('#prosemirror-hashtag-immutables').type(
+          cy.get('#tagging-immutable-hashtags-with-fixture').type(
             'Go to #off{enter}{backspace}{leftArrow}{leftArrow}{leftArrow}{rightArrow}{rightArrow}{rightArrow}{rightArrow}'
           )
           expectSelectionToEqual('')
 
-          cy.get('#prosemirror-hashtag-immutables')
+          cy.get('#tagging-immutable-hashtags-with-fixture')
             .type('a')
             .invoke('text')
             .should('equal', 'Go to #officea')
@@ -215,10 +225,10 @@ describe('hashtags', () => {
       })
 
       it('selects complete hashtag upon partial hashtag selection', () => {
-        cy.get('#prosemirror-hashtag-immutables').type(
+        cy.get('#tagging-immutable-hashtags-with-fixture').type(
           'Go to #off{enter}{leftArrow}{leftArrow}'
         )
-        cy.get('#prosemirror-hashtag-immutables p').then($div => {
+        cy.get('#tagging-immutable-hashtags-with-fixture p').then($div => {
           cy.window().then(win => {
             const paragraph = $div.get(0)
 
@@ -236,12 +246,12 @@ describe('hashtags', () => {
     })
 
     it.skip('does not paint unresolved hashtags on hashtags-immutables state', () => {
-      cy.get('#prosemirror-hashtag-mutables')
+      cy.get('#tagging-immutable-hashtags-with-fixture')
         .type('good #after noon')
         .within(() => {
           cy.contains('after').should('have.class', 'editing-hashtag')
         })
-      cy.get('#prosemirror-hashtag-immutables')
+      cy.get('#tagging-immutable-hashtags-with-fixture')
         .type('good #after noon')
         .within(() => {
           cy.contains('after').should('not.have.class', 'editing-hashtag')

@@ -9,9 +9,15 @@ import createImmutableNodePlugin from './immutableNodePlugin'
 import {
   HASHTAG_SCHEMA_NODE_TYPE,
   MENTION_SCHEMA_NODE_TYPE,
-  findEditingTag
+  findEditingHashtag,
+  findEditingMention
 } from '../model/taggingUtils'
-import { suggestionsStateReducer, SET_EDITING_TAG } from './suggestionsRecuder'
+import {
+  suggestionsStateReducer,
+  SET_EDITING_HASHTAG,
+  SET_EDITING_MENTION,
+  CLOSE_TAG_SUGGESTIONS
+} from './suggestionsRecuder'
 
 function useTaggingEditorState({
   value,
@@ -21,6 +27,7 @@ function useTaggingEditorState({
   disableMarks,
   disableEdit,
   hashtagSuggestions,
+  mentionSuggestions,
   focusViewHook,
   onNewHashtag,
   tags
@@ -48,7 +55,7 @@ function useTaggingEditorState({
   // (highlighting and selecting a hashtag to be resolved, or creating a new hashtag option).
   const [suggestionsState, dispatchSuggestion] = useReducer(
     // Use "bind" to insert an argument before the standard "state, action" arguments of React.useReducer
-    suggestionsStateReducer.bind(null, hashtagSuggestions),
+    suggestionsStateReducer.bind(null, hashtagSuggestions, mentionSuggestions),
     {} // initial state empty
   )
 
@@ -56,24 +63,54 @@ function useTaggingEditorState({
   useEffect(() => {
     if (!editorState) return
 
-    dispatchSuggestion({
-      type: SET_EDITING_TAG,
-      payload: findEditingTag(editorState.doc, editorState.selection)
-    })
+    const editingHashtag = findEditingHashtag(
+      editorState.doc,
+      editorState.selection
+    )
+    const editingMention = findEditingMention(
+      editorState.doc,
+      editorState.selection
+    )
+
+    if (editingHashtag)
+      dispatchSuggestion({
+        type: SET_EDITING_HASHTAG,
+        payload: findEditingHashtag(editorState.doc, editorState.selection)
+      })
+
+    if (editingMention)
+      dispatchSuggestion({
+        type: SET_EDITING_MENTION,
+        payload: findEditingMention(editorState.doc, editorState.selection)
+      })
+
+    if (!editingMention && !editingHashtag)
+      dispatchSuggestion({ type: CLOSE_TAG_SUGGESTIONS })
   }, [editorState])
 
   // Insert the selected hashtag as a resolved hashtag.
   // When "selectedIndex" is passed as -1, it implies creating a new tag out of the one being edited.
   const resolveTag = selectedIndex => {
+    // if there is no selected index, set it to the one highlighted by the mouseover
     if (isNaN(selectedIndex)) selectedIndex = suggestionsState.highlightIndex
+
+    // If there is no suggestion for a mention - abort
+    if (
+      suggestionsState.currentEditingTag.value.slice(0, 1) === '@' &&
+      !suggestionsState.suggestionList.length
+    )
+      return
+
     // resolve the new tag text - either from the selected suggestion or from the tag being edited.
     const newTagText =
       selectedIndex > -1
-        ? suggestionsState.suggestionList[selectedIndex]
+        ? suggestionsState.suggestionList[selectedIndex].tagName
         : suggestionsState.currentEditingTag.value
 
     const newTagNode = schema.node(
-      HASHTAG_SCHEMA_NODE_TYPE,
+      newTagText.slice(0, 1) === '#'
+        ? HASHTAG_SCHEMA_NODE_TYPE
+        : MENTION_SCHEMA_NODE_TYPE,
       null,
       schema.text(newTagText)
     )

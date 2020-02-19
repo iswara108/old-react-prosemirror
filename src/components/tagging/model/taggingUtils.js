@@ -49,7 +49,7 @@ const getTokens = doc => {
 //  end: Number,
 //  value: String
 // }
-const findEditingTag = (doc, selection) => {
+const findEditingHashtag = (doc, selection) => {
   const tokens = getTokens(doc)
   const lowestSelection = Math.min(selection.anchor, selection.head)
   const highestSelection = Math.max(selection.anchor, selection.head)
@@ -58,6 +58,17 @@ const findEditingTag = (doc, selection) => {
     hashtag =>
       hashtag.start + 1 <= lowestSelection &&
       hashtag.end + 1 >= highestSelection
+  )
+}
+const findEditingMention = (doc, selection) => {
+  const tokens = getTokens(doc)
+  const lowestSelection = Math.min(selection.anchor, selection.head)
+  const highestSelection = Math.max(selection.anchor, selection.head)
+
+  return tokens.mentions.find(
+    mention =>
+      mention.start + 1 <= lowestSelection &&
+      mention.end + 1 >= highestSelection
   )
 }
 
@@ -70,7 +81,8 @@ const findAllMentions = doc => {
 }
 
 export {
-  findEditingTag,
+  findEditingHashtag,
+  findEditingMention,
   findAllHashtags,
   findAllMentions,
   HASHTAG_SCHEMA_NODE_TYPE,
