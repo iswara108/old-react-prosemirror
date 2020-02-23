@@ -1,11 +1,11 @@
 .editing-hashtag {
-  background: #fdd;
+  background: #fffaea;
   border-bottom: 1px solid #f22;
   margin-bottom: -1px;
 }
 
 .editing-mention {
-  background: rgb(143, 210, 255);
+  background: #f0faff;
   border-bottom: 1px solid rgb(81, 248, 156);
   margin-bottom: -1px;
 }
