@@ -4,7 +4,7 @@ import Token from './token'
 /**
  * Mention Token.
  */
-const Mention = function(start, value) {
+const Mention = function (start, value) {
   Token.call(this, start, value)
 }
 
@@ -28,7 +28,7 @@ Mention.prototype = Object.create(Token.prototype, {
  *   if one was found. The ending position if none
  *   was found.
  */
-Mention.parse = function(start, text) {
+Mention.parse = function (start, text) {
   if (text[start] !== '@') {
     return start
   }

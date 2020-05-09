@@ -201,9 +201,7 @@ describe('hashtags', () => {
             .should('contain', 'Go to #officea')
 
           // Test that the hashtag has not changed
-          cy.contains('#office')
-            .invoke('text')
-            .should('equal', '#office')
+          cy.contains('#office').invoke('text').should('equal', '#office')
         })
 
         it('walk around a resolved hashtag - challenge end of hashtag - more right and left keys', () => {
@@ -218,9 +216,7 @@ describe('hashtags', () => {
             .should('equal', 'Go to #officea')
 
           // Test that the hashtag has not changed
-          cy.contains('#office')
-            .invoke('text')
-            .should('equal', '#office')
+          cy.contains('#office').invoke('text').should('equal', '#office')
         })
       })
 

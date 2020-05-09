@@ -1,6 +1,9 @@
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
-import { HASHTAG_SCHEMA_NODE_TYPE ,MENTION_SCHEMA_NODE_TYPE} from './taggingUtils'
+import {
+  HASHTAG_SCHEMA_NODE_TYPE,
+  MENTION_SCHEMA_NODE_TYPE
+} from './taggingUtils'
 
 // create the schema specs for an editor with hashtags.
 export default function taggingSchema(multiline, disableMarks) {

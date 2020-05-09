@@ -37,22 +37,24 @@ const SuggestionDropdown = ({
       <div className={classes.container}>
         <div>
           <Paper className={classes.paper} square>
-            {// display option to create new hashtag only if there is no exact match.
-            !readOnly &&
-              !suggestionList.some(
-                suggestion => suggestion.tagName === inputValue
-              ) && (
-                <Suggestion
-                  suggestion={{ tagName: `${inputValue} (create new)` }}
-                  index={-1}
-                  key={inputValue}
-                  itemProps={{}}
-                  highlightIndex={highlightIndex}
-                  selectedItem={selectedItem || ''}
-                  setHighlightIndex={setHighlightIndex}
-                  setAsSelected={setAsSelected}
-                />
-              )}
+            {
+              // display option to create new hashtag only if there is no exact match.
+              !readOnly &&
+                !suggestionList.some(
+                  suggestion => suggestion.tagName === inputValue
+                ) && (
+                  <Suggestion
+                    suggestion={{ tagName: `${inputValue} (create new)` }}
+                    index={-1}
+                    key={inputValue}
+                    itemProps={{}}
+                    highlightIndex={highlightIndex}
+                    selectedItem={selectedItem || ''}
+                    setHighlightIndex={setHighlightIndex}
+                    setAsSelected={setAsSelected}
+                  />
+                )
+            }
             {suggestionList.map((suggestion, index) => (
               <Suggestion
                 suggestion={suggestion}

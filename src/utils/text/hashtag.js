@@ -4,7 +4,7 @@ import Token from './token'
 /**
  * Hashtag token.
  */
-const Hashtag = function(start, value) {
+const Hashtag = function (start, value) {
   Token.call(this, start, value)
 }
 
@@ -27,7 +27,7 @@ Hashtag.prototype = Object.create(Token.prototype, {
  *   if one was found. The ending position if none
  *   was found.
  */
-Hashtag.parse = function(start, text) {
+Hashtag.parse = function (start, text) {
   if (text[start] !== '#') {
     return start
   }
