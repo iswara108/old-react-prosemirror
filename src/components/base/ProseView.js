@@ -35,10 +35,12 @@ const ProseView = forwardRef((props, ref) => {
 
   // Update view whenever the state changes
   useLayoutEffect(() => {
-    if (editorView && editorState) {
-      if (!editorView.state !== editorState) {
-        editorView.updateState(editorState)
-      }
+    if (
+      editorView &&
+      editorState &&
+      JSON.stringify(editorView.state) !== JSON.stringify(editorState)
+    ) {
+      editorView.updateState(editorState)
     }
   }, [editorState, editorView])
 
