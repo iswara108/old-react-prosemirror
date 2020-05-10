@@ -37,7 +37,11 @@ function useDefaultProseState({
   const syncStatePlugin = new Plugin({
     key: new PluginKey('Sync State Plugin'),
     view: () => ({
-      update: view => setEditorState(view.state)
+      update: view => {
+        if (JSON.stringify(view.state) !== JSON.stringify(editorState)) {
+          setEditorState(view.state)
+        }
+      }
     })
   })
 

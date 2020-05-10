@@ -139,8 +139,8 @@ function useTaggingEditorState({
     // apply transaction into the state
     setEditorState(interimState.apply(transaction))
 
-    // Invoke back the keyboard (for mobile)
-    focusViewHook()
+    // Invoke back the keyboard (for mobile) on desktop - refocus (not clear why focus is lost)
+    setTimeout(focusViewHook, 0)
 
     // Add new selection into the global list of hashtags
     if (selectedIndex === -1) onNewHashtag(newTagText)

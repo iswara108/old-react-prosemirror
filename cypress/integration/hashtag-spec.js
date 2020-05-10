@@ -99,6 +99,8 @@ describe('hashtags', () => {
           .type('where-else{enter}')
           .should('contain', 'Do paperwork #somewhere-else')
 
+        cy.wait(200)
+
         cy.get('#tagging-immutable-hashtags-with-fixture').type(' #')
         cy.get('.suggestions-dropdown').within(() => {
           cy.contains('somewhere-else')
