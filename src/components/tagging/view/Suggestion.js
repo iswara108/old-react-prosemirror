@@ -15,7 +15,7 @@ function Suggestion({
   const isHighlighted = highlightIndex === index
   const isSelected = (selectedItem || '').indexOf(suggestion) > -1
 
-  const [setToMyIndex] = useDebouncedCallback(() => setHighlightIndex(index), 5)
+  const setToMyIndex = useDebouncedCallback(() => setHighlightIndex(index), 5)
 
   return (
     <MenuItem
