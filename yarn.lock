@@ -1796,7 +1796,7 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
-"@types/orderedmap@*":
+"@types/orderedmap@*", "@types/orderedmap@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/orderedmap/-/orderedmap-1.0.0.tgz#807455a192bba52cbbb4517044bc82bdbfa8c596"
   integrity sha512-dxKo80TqYx3YtBipHwA/SdFmMMyLCnP+5mkEqN0eMjcTBzHkiiX0ES118DsjDBjvD+zeSsSU9jULTZ+frog+Gw==
@@ -1822,6 +1822,13 @@
   integrity sha512-R+vutu3AptoiXGJR0Jdpyr7BkJg24bce9ETUDOrBJZhRcsWeMEFGzidG19GHcY6Yny5zTILxlqXeDEIF3C5b7A==
   dependencies:
     "@types/orderedmap" "*"
+
+"@types/prosemirror-schema-basic@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/prosemirror-schema-basic/-/prosemirror-schema-basic-1.0.1.tgz#e8e0a9257f96935cea1faec554e20c16c77cac1e"
+  integrity sha512-IOQAYf1urifbH+Zwbq5XfFOUMNCbEnvIqpuSAE8SUt00nDAoH62T/S8Qhu8LuF++KQbyXb7fdMp352zkPW9Hmw==
+  dependencies:
+    "@types/prosemirror-model" "*"
 
 "@types/prosemirror-state@*", "@types/prosemirror-state@^1.2.5":
   version "1.2.5"
