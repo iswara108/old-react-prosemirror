@@ -8,6 +8,15 @@ const SET_EDITING_MENTION = 'SET_EDITING_MENTION'
 const CLOSE_TAG_SUGGESTIONS = 'CLOSE_TAG_SUGGESTIONS'
 
 type SuggestionType = { tagName: string }
+
+export interface SuggestionStateType {
+  currentEditingTag: any
+  suggestionList: Array<SuggestionType>
+  suggestionType: 'mention' | 'hashtag'
+  highlightedIndex: number
+  highlightIndex: number
+}
+
 // Get relevant suggestions for the given hashtag under construction.
 function getRelevantSuggestions(
   value = '',
@@ -27,7 +36,7 @@ function getRelevantSuggestions(
 function suggestionsStateReducer(
   hashtagSuggestions: Array<SuggestionType>,
   mentionSuggestions: Array<SuggestionType>,
-  state: any,
+  state: SuggestionStateType,
   action: any
 ) {
   switch (action.type) {
@@ -35,10 +44,10 @@ function suggestionsStateReducer(
     case MOVE_TO_NEXT_SUGGESTION:
       return {
         ...state,
-        highlightedIndex:
-          state.highlightedIndex < state.suggestionList.length - 1
-            ? state.highlightedIndex + 1
-            : state.highlightedIndex
+        highlightIndex:
+          state.highlightIndex < state.suggestionList.length - 1
+            ? state.highlightIndex + 1
+            : state.highlightIndex
       }
     case CLOSE_TAG_SUGGESTIONS:
       return {}
@@ -46,17 +55,17 @@ function suggestionsStateReducer(
       // move highlight index upward as long as it doesn't reach the beginning of the suggestions
       return {
         ...state,
-        highlightedIndex:
-          state.highlightedIndex >= 0
-            ? state.highlightedIndex - 1
-            : state.highlightedIndex
+        highlightIndex:
+          state.highlightIndex >= 0
+            ? state.highlightIndex - 1
+            : state.highlightIndex
       }
     case SET_HIGHLIGHT_INDEX:
       return {
         ...state,
-        highlightedIndex: action.payload
+        highlightIndex: action.payload
           ? action.payload.index
-          : state.highlightedIndex
+          : state.highlightIndex
       }
     case SET_EDITING_HASHTAG:
       if (!action.payload) return {} // if there is no hashtag under construction - do not display selections
@@ -70,11 +79,11 @@ function suggestionsStateReducer(
         currentEditingTag: action.payload,
         suggestionList: hashtagSuggestionList,
         suggestionType: 'hashtag',
-        highlightedIndex: hashtagSuggestionList.length // set the highlight index according to its previous state upon opening the suggestion list:
+        highlightIndex: hashtagSuggestionList.length // set the highlight index according to its previous state upon opening the suggestion list:
           ? Math.min(
               // Limit the highlight index to the number of suggestions to account for situations in which the number of suggestions decrease.
               hashtagSuggestionList.length - 1,
-              state.highlightedIndex === -1 ? 0 : state.highlightedIndex // default to keep the hightlight
+              state.highlightIndex === -1 ? 0 : state.highlightedIndex // default to keep the hightlight
             ) || 0 // If there is no previous highlight - default to the first option.
           : -1 // if there are no relevant suggestions - set highlight to creating a new hashtag
       }
