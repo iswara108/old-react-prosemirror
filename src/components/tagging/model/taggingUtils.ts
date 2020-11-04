@@ -1,10 +1,16 @@
 import Tokenizer from '../../../utils/text/tokenizer'
+import { Node } from 'prosemirror-model'
+import { Selection } from 'prosemirror-state'
+import Token from '../../../utils/text/token'
 const HASHTAG_SCHEMA_NODE_TYPE = 'hashtagMention'
 const MENTION_SCHEMA_NODE_TYPE = 'personMention'
 
 // This function takes a node with taggingSchema and returns an object with an array of all hashtags and an array of all mentions
-const getTokens = doc => {
-  let tokens = { hashtags: [], mentions: [] }
+const getTokens = (doc: Node) => {
+  let tokens: { hashtags: Token[]; mentions: Token[] } = {
+    hashtags: [],
+    mentions: []
+  }
 
   doc.descendants((node, pos, parent) => {
     // do not consider resolved tag nodes.
@@ -21,9 +27,9 @@ const getTokens = doc => {
     )
       return // only handle text nodes which might have a token
 
-    const tokenizer = Tokenizer(node.text)
+    const tokenizer = Tokenizer(node.text || '')
 
-    const token = {}
+    const token: { hashtags?: Array<Token>; mentions?: Array<Token> } = {}
     token.hashtags = tokenizer.hashtags.map(hashtag => ({
       start: hashtag.start + pos - 1,
       end: hashtag.end + pos - 1,
@@ -36,8 +42,8 @@ const getTokens = doc => {
     }))
 
     tokens = {
-      hashtags: tokens.hashtags.concat(token.hashtags),
-      mentions: tokens.mentions.concat(token.mentions)
+      hashtags: tokens.hashtags.concat(token.hashtags!),
+      mentions: tokens.mentions.concat(token.mentions!)
     }
   })
   return tokens
@@ -49,7 +55,10 @@ const getTokens = doc => {
 //  end: Number,
 //  value: String
 // }
-const findEditingHashtag = (doc, selection) => {
+const findEditingHashtag: (
+  doc: Node,
+  selection: Selection
+) => Token | undefined = (doc, selection) => {
   const tokens = getTokens(doc)
   const lowestSelection = Math.min(selection.anchor, selection.head)
   const highestSelection = Math.max(selection.anchor, selection.head)
@@ -60,7 +69,10 @@ const findEditingHashtag = (doc, selection) => {
       hashtag.end + 1 >= highestSelection
   )
 }
-const findEditingMention = (doc, selection) => {
+const findEditingMention: (
+  doc: Node,
+  selection: Selection
+) => Token | undefined = (doc, selection) => {
   const tokens = getTokens(doc)
   const lowestSelection = Math.min(selection.anchor, selection.head)
   const highestSelection = Math.max(selection.anchor, selection.head)
@@ -72,11 +84,11 @@ const findEditingMention = (doc, selection) => {
   )
 }
 
-const findAllHashtags = doc => {
+const findAllHashtags = (doc: Node) => {
   return getTokens(doc).hashtags
 }
 
-const findAllMentions = doc => {
+const findAllMentions = (doc: Node) => {
   return getTokens(doc).mentions
 }
 

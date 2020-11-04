@@ -4,20 +4,21 @@ import {
   TextSelection,
   NodeSelection
 } from 'prosemirror-state'
+import { Node } from 'prosemirror-model'
 
-const createImmutablePlugin = immutableNodeType =>
+const createImmutablePlugin = (immutableNodeType: string) =>
   new Plugin({
     key: new PluginKey('Immutable Plugin'),
 
     props: {
       // If a text is input on the borders of the immutable node - insert as plain text.
-      handleTextInput(view, from, to, text) {
+      handleTextInput(view, from, _to, text) {
         if (
           view.state.doc.resolve(from).parent.type.name === immutableNodeType
         ) {
           view.dispatch(view.state.tr.insertText(text))
-          return true
         }
+        return true
       },
 
       // completes any selection to encompass any hashtag within it in its
@@ -51,8 +52,8 @@ const createImmutablePlugin = immutableNodeType =>
 
     filterTransaction(transaction, editorState) {
       let changeInHashtag = false
-      const editorHashtags = [],
-        transactionImmutables = []
+      const editorHashtags: Array<{ node: Node; pos: number }> = [],
+        transactionImmutables: Array<{ node: Node; pos: number }> = []
 
       editorState.doc.descendants((node, pos) => {
         if (node.type.name === immutableNodeType)

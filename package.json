@@ -23,6 +23,9 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.164",
+    "@types/prosemirror-model": "^1.11.0",
+    "@types/prosemirror-state": "^1.2.5",
+    "@types/prosemirror-view": "^1.16.1",
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.9",
     "cypress": "^5.5.0",
