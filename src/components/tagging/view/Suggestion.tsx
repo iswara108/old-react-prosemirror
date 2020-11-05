@@ -2,8 +2,21 @@ import { useDebouncedCallback } from 'use-debounce'
 import React from 'react'
 import MenuItem from '@material-ui/core/MenuItem'
 import PropTypes from 'prop-types'
+import Token from '../../../utils/text/token'
 
-function Suggestion({
+type Props = {
+  suggestion:
+    | string
+    | { avatarUrl?: string; displayName?: string; tagName: string }
+  index: number
+  itemProps: any
+  highlightIndex: number
+  selectedItem: string
+  setHighlightIndex: (index: number) => void
+  setAsSelected: (index: number) => void
+}
+
+const Suggestion: React.FC<Props> = ({
   suggestion,
   index,
   itemProps,
@@ -11,11 +24,18 @@ function Suggestion({
   selectedItem,
   setHighlightIndex,
   setAsSelected
-}) {
+}): JSX.Element => {
   const isHighlighted = highlightIndex === index
-  const isSelected = (selectedItem || '').indexOf(suggestion) > -1
 
-  const setToMyIndex = useDebouncedCallback(() => setHighlightIndex(index), 5)
+  const isSelected =
+    typeof suggestion === 'string'
+      ? (selectedItem || '').indexOf(suggestion) > -1
+      : false
+
+  const setToMyIndex = useDebouncedCallback<(index: number) => void>(
+    () => setHighlightIndex(index),
+    5
+  )
 
   return (
     <MenuItem
@@ -26,35 +46,24 @@ function Suggestion({
         fontWeight: isSelected ? 500 : 400
       }}
       onMouseMove={() => {
-        if (!isHighlighted) setToMyIndex()
+        if (!isHighlighted) setToMyIndex.callback(index)
       }}
       onClick={() => setAsSelected(index)}
     >
-      {suggestion.displayName ? (
+      {typeof suggestion === 'object' && suggestion.displayName ? (
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <img
             style={{ width: '50px', marginRight: '10px' }}
-            src={suggestion.avatarURL}
+            src={suggestion.avatarUrl}
             alt={suggestion.displayName}
           />
           <p>{suggestion.displayName}</p>
         </div>
       ) : (
-        suggestion.tagName
+        <>{typeof suggestion === 'object' && suggestion.tagName}</>
       )}
     </MenuItem>
   )
-}
-
-Suggestion.propTypes = {
-  highlightIndex: PropTypes.oneOfType([
-    PropTypes.oneOf([null]),
-    PropTypes.number
-  ]).isRequired,
-  index: PropTypes.number.isRequired,
-  itemProps: PropTypes.object.isRequired,
-  selectedItem: PropTypes.string.isRequired,
-  suggestion: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
 }
 
 export default Suggestion

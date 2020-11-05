@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect, useEffect, useReducer } from 'react'
+import * as React from 'react'
 import { Schema } from 'prosemirror-model'
 import { schema as schemaBasic } from 'prosemirror-schema-basic'
 import { Node } from 'prosemirror-model'
@@ -51,7 +51,7 @@ function useDefaultProseState({
     ...additionalPlugins
   ]
 
-  const editorStateReducer = (state, action) => {
+  function editorStateReducer(state: EditorState, action: ACTIONTYPE) {
     switch (action.type) {
       case 'initState':
         return EditorState.create({
@@ -84,6 +84,10 @@ function useDefaultProseState({
     }
   }
 
+  type ACTIONTYPE =
+    | { type: 'initState' }
+    | { type: 'setNewState'; payload: EditorState }
+    | { type: 'setNewContent'; payload: Node }
   const [editorState, dispatch] = useReducer(editorStateReducer)
 
   // initialize editorState once the component is mounted.

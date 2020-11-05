@@ -2,6 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import Suggestion from './Suggestion'
+import { SuggestionType } from '../state/suggestionsRecuder'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,14 +22,22 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const SuggestionDropdown = ({
+type Props = {
+  inputValue: string
+  suggestionList: SuggestionType[]
+  highlightIndex: number
+  setHighlightIndex: (index: number) => void
+  setAsSelected: (index: number) => void
+  readOnly: boolean
+}
+const SuggestionDropdown: React.FC<Props> = ({
   inputValue,
   suggestionList,
   highlightIndex,
   setHighlightIndex,
   setAsSelected,
   readOnly = false
-}) => {
+}): JSX.Element => {
   const classes = useStyles()
   const selectedItem = undefined
 

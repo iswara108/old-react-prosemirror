@@ -7,15 +7,35 @@ import React, {
 } from 'react'
 import { EditorView } from 'prosemirror-view'
 import 'prosemirror-view/style/prosemirror.css'
-
+import { EditorState } from 'prosemirror-state'
 import './proseMirror.css'
+import { SuggestionType } from '../tagging/state/suggestionsRecuder'
 
-const ProseView = forwardRef((props, ref) => {
+type Props = {
+  id: string
+  defaultValue: string
+  value: string
+  onChange: () => void
+  multiline: boolean
+  disableMarks: boolean
+  autoFocus: boolean
+  disableEdit: boolean
+  setEditorView?: (editorView: EditorView) => void
+  hashtagSuggestions: SuggestionType[]
+  mentionSuggestions: SuggestionType[]
+  tags: 'mutable' | 'immutable'
+  onNewHashtag: () => void
+  editorState?: EditorState
+}
+
+const ProseView = forwardRef<React.RefObject<any>, Props>((props, ref) => {
   const { editorState, autoFocus } = props
-  const [editorView, setEditorView] = useState(null)
+  const [editorView, setEditorView] = useState<EditorView>()
 
-  const contentEditableDom = useRef(document.createElement('div'))
-  if (ref) ref.current = contentEditableDom.current // forward optional parent ref to DOM element.
+  const contentEditableDom = useRef<HTMLDivElement>(
+    document.createElement('div')
+  )
+  if (ref) (ref as any).current = contentEditableDom.current // forward optional parent ref to DOM element.
 
   // Initialize editor view on the first time the state exists.
   useLayoutEffect(() => {
@@ -30,7 +50,7 @@ const ProseView = forwardRef((props, ref) => {
 
   // export editorView to parent once it is initialized.
   useEffect(() => {
-    if (props.setEditorView) props.setEditorView(editorView)
+    if (props.setEditorView && editorView) props.setEditorView(editorView)
   }, [props, editorView, props.setEditorView])
 
   // Update view whenever the state changes
@@ -51,8 +71,8 @@ const ProseView = forwardRef((props, ref) => {
 
   // remove non-HTML props.
   const propsToDiv = { ...props }
-  delete propsToDiv.editorState
-  delete propsToDiv.setEditorView
+  delete propsToDiv?.editorState
+  delete propsToDiv?.setEditorView
 
   return <div ref={contentEditableDom} {...propsToDiv} />
 })
